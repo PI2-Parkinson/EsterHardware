@@ -309,11 +309,6 @@ int ler_botoes(int nivel, int* sequencia){
                 delay_ms(200);
                 botao = i+1;
 
-                Serial.print("O botao apertado foi ");
-                Serial.println(botao);
-                Serial.print("O botao correto é ");
-                Serial.println(sequencia[cont]);
-
                 //ACENDE O LED
                 acender_leds(botao,50);
 
@@ -404,6 +399,7 @@ void loop() {
         break;
       case 4:
         //pulseira();
+        while(comunicacao(4,0,sequencia_padrao) == 0);
         proximo_estado = 0;
         break;
       case 5:
