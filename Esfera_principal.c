@@ -348,6 +348,7 @@ int main(void){
 				break;
 			case 4:
 				//pulseira();
+				while(comunicacao(4,0,sequencia_padrao) == 0);
 				proximo_estado = 0;
 				break;
 			case 5:
