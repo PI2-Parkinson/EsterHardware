@@ -23,7 +23,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
             break;
         }
         break;
-    case 1: // exercÌcio 1
+    case 1: // exerc√≠cio 1
         switch(escolha){
         case 1:
             printf("O botao de para foi apertado? 0- nao 1- sim\n");
@@ -54,7 +54,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
             break;
         }
         break;
-    case 2: // exercÌcio 2
+    case 2: // exerc√≠cio 2
         switch(escolha){
         case 1:
             printf("O botao de para foi apertado? 0- nao 1- sim\n");
@@ -85,7 +85,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
             break;
         }
         break;
-    case 3: // exercÌcio 3
+    case 3: // exerc√≠cio 3
         switch(escolha){
         case 0:
             printf("Finalizou o jogo? 0 - nao e 1 - sim");
@@ -106,7 +106,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
             break;
         }
         break;
-    case 5: // Leitura dos botıes da esf secundaria
+    case 5: // Leitura dos bot√µes da esf secundaria
         switch(escolha){
         case 1:
             retorno = 0;
@@ -151,19 +151,19 @@ void exercicio1(){
         int sequencia[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
         int deseja_continuar = 1;
 
-        //DEMONSTRA«√O
+        //DEMONSTRA√á√ÉO
         comunicacao(1,5,sequencia_padrao);
 
         for (i = 0; i < 5; i++){
             acender_leds(i+1,333);
         }
 
-        //RECEBE NÕVEL
+        //RECEBE N√çVEL
         nivel = comunicacao(1,3,sequencia_padrao);
 
         for (count = nivel; count <= 32 && deseja_continuar == 1; count++)
         {
-            //GERA SEQU NCIA ALEAT”RIA
+            //GERA SEQU√äNCIA ALEAT√ìRIA
             srand(semente_rand);
             if (count == nivel)
                 for (j = 0; j < count; j++)
@@ -171,10 +171,10 @@ void exercicio1(){
             else
                 sequencia[count - 1] = printRandoms(lower, upper, count);
 
-            //MANDA SEQU NCIA
+            //MANDA SEQU√äNCIA
             comunicacao(1,5,sequencia);
 
-            //LER BOT’ES E ACENDE LEDS
+            //LER BOT√ïES E ACENDE LEDS
             if(ler_botoes(count,sequencia) == 1){
 
                 //ERROU, DESEJA CONTINUAR?
@@ -190,7 +190,7 @@ void exercicio1(){
             }
         }
 
-        //MANDA NÕVEL
+        //MANDA N√çVEL
         comunicacao(1,4,&nivel);
 
 }
@@ -203,7 +203,7 @@ void exercicio2(){
         int sequencia[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
         int deseja_continuar = 1;
 
-        //DEMONSTRA«√O
+        //DEMONSTRA√á√ÉO
         comunicacao(2,5,sequencia_padrao);
 
         //ACENDE LEDS DA SEQUENCIA
@@ -211,13 +211,13 @@ void exercicio2(){
             acender_leds(i+1,333);
         }
 
-        //RECEBE NÕVEL
+        //RECEBE N√çVEL
         nivel = comunicacao(2,3,sequencia_padrao);
 
         for (count = nivel; count <= 32 && deseja_continuar == 1; count++)
         {
 
-            //GERA SEQU NCIA ALEAT”RIA
+            //GERA SEQU√äNCIA ALEAT√ìRIA
             srand(semente_rand);
             if (count == nivel)
                 for (j = 0; j < count; j++)
@@ -225,7 +225,7 @@ void exercicio2(){
             else
                 sequencia[count - 1] = printRandoms(lower, upper, count);
 
-            //MANDA SEQU NCIA
+            //MANDA SEQU√äNCIA
             comunicacao(1,5,sequencia);
 
             //ACENDE LEDS DA SEQUENCIA
@@ -235,7 +235,7 @@ void exercicio2(){
                 i++;
             }
 
-            //LER BOT’ES E ACENDE LEDS
+            //LER BOT√ïES E ACENDE LEDS
             if(ler_botoes(count,sequencia) == 1){
 
                 //ERROU, DESEJA CONTINUAR?
@@ -251,7 +251,7 @@ void exercicio2(){
             }
         }
 
-        //MANDA NÕVEL
+        //MANDA N√çVEL
         comunicacao(1,4,&nivel);
 
 }
@@ -286,7 +286,7 @@ int ler_botoes(int nivel, int* sequencia){
                 botao_sec = comunicacao(5,1,sequencia_padrao);
 
                 //VERIFICA SE ESTA CORRETO
-                if(sequencia[i-1] == botao && sequencia[i-1] == botao_sec && errou == 0)
+                if(sequencia[cont] == botao && sequencia[cont] == botao_sec && errou == 0)
                     errou = 0;
                 else
                     errou = 1;
@@ -300,7 +300,7 @@ int ler_botoes(int nivel, int* sequencia){
     return errou;
 }
 void acender_leds(int LED, int tempo){
-    int vetor_led[2] = {LED,tempo, 0};
+    int vetor_led[3] = {LED,tempo, 0};
 
     printf("LED %d aceso\n", LED);
     delay_ms(tempo);
