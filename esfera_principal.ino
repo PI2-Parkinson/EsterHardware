@@ -218,7 +218,7 @@ void exercicio1(){
         }
 
         //MANDA NÍVEL
-        nivel = count-1;
+        nivel = count;
         comunicacao(1,4,&nivel);
 
 }
@@ -280,7 +280,7 @@ void exercicio2(){
         }
 
         //MANDA NÍVEL
-        nivel = count-1;
+        nivel = count;
         comunicacao(2,4,&nivel);
 
 }
