@@ -161,7 +161,7 @@ void exercicio1(){
         //RECEBE NÍVEL
         nivel = comunicacao(1,3,sequencia_padrao);
 
-        for (count = nivel; count <= 32 && deseja_continuar == 1; count++)
+        for (count = nivel; count < 32 && deseja_continuar == 1; count++)
         {
             //GERA SEQUÊNCIA ALEATÓRIA
             srand(semente_rand);
@@ -191,6 +191,7 @@ void exercicio1(){
         }
 
         //MANDA NÍVEL
+        nivel = count-1;
         comunicacao(1,4,&nivel);
 
 }
@@ -214,7 +215,7 @@ void exercicio2(){
         //RECEBE NÍVEL
         nivel = comunicacao(2,3,sequencia_padrao);
 
-        for (count = nivel; count <= 32 && deseja_continuar == 1; count++)
+        for (count = nivel; count < 32 && deseja_continuar == 1; count++)
         {
 
             //GERA SEQUÊNCIA ALEATÓRIA
@@ -239,7 +240,7 @@ void exercicio2(){
             if(ler_botoes(count,sequencia) == 1){
 
                 //ERROU, DESEJA CONTINUAR?
-                deseja_continuar = comunicacao(1,2,sequencia_padrao);
+                deseja_continuar = comunicacao(2,2,sequencia_padrao);
                 count = 0;
                 nivel = 1;
                 for(i=0;i<32;i++)
@@ -247,18 +248,20 @@ void exercicio2(){
             }else{
 
                 //ACERTOU, DESEJA CONTINUAR?
-                deseja_continuar = 1-comunicacao(1,1,sequencia_padrao);
+                deseja_continuar = 1-comunicacao(2,1,sequencia_padrao);
             }
         }
 
         //MANDA NÍVEL
-        comunicacao(1,4,&nivel);
+        nivel = count-1;
+        comunicacao(2,4,&nivel);
 
 }
 void exercicio3(){
     while(comunicacao(3,0,sequencia_padrao) == 0);
 }
 void pulseira(){
+    while(comunicacao(4,0,sequencia_padrao) == 0);
 
 }
 
@@ -276,6 +279,7 @@ int ler_botoes(int nivel, int* sequencia){
         for (i = 0; i < 5 ; i++){
             printf("O botao %d foi apertado? 0 nao e 1 sim\n",i+1);
             scanf("%d", &apertou);
+
             if(apertou == 1){
                 botao = i+1;
 
@@ -283,14 +287,14 @@ int ler_botoes(int nivel, int* sequencia){
                 acender_leds(botao,50);
 
                 //VERIFICA SE O BOTAO DA ESF SEC FOI APERTADO
-                botao_sec = comunicacao(5,1,sequencia_padrao);
+                //botao_sec = comunicacao(5,1,sequencia_padrao);
 
                 //VERIFICA SE ESTA CORRETO
                 if(sequencia[cont] == botao && sequencia[cont] == botao_sec && errou == 0)
                     errou = 0;
                 else
                     errou = 1;
-                cont ++;
+                cont++;
             }
         }
     }
@@ -347,8 +351,7 @@ int main(void){
 				proximo_estado = 0;
 				break;
 			case 4:
-				//pulseira();
-				while(comunicacao(4,0,sequencia_padrao) == 0);
+				pulseira();
 				proximo_estado = 0;
 				break;
 			case 5:
