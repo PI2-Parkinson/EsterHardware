@@ -5,6 +5,15 @@ int comunicacao_sec(int opcao, int escolha){
     int retorno;
     switch(opcao){
     case 0:
+        if(escolha == 0){
+            printf("Ler botao (0) ou acender LED (1)\n");
+            scanf("%d",&retorno);
+        }else if(escolha == 1){
+            printf("O jogo foi finalizado? 0 - nao e 1 - sim\n");
+            scanf("%d",&retorno);
+        }else{
+            printf("Comando inválido\n");
+        }
         break;
     case 1:
         printf("Enviar botao %d\n", escolha);
@@ -17,30 +26,37 @@ int comunicacao_sec(int opcao, int escolha){
         break;
     }
 
+    return retorno;
+
 }
 
 int ler_botoes(){
-    int botao
-    for (i = 0; i < 5 ; i++){
-        printf("O botao %d foi apertado? 0 nao e 1 sim\n");
-        scanf("%d", &apertou);
-        if(apertou == 1){
-            botao = i+1;
+    int i;
+    int botao, apertou = 0;
+    while(apertou == 0)
+        for (i = 0; i < 5 ; i++){
 
-            // ACENDE O LED
-            acender_leds(botao,50);
+            //LER O BOTAO
+            printf("O botao %d foi apertado? 0 nao e 1 sim\n",i+1);
+            scanf("%d", &apertou);
 
-            // ENVIA O DADO PARA A OUTRA ESFERA
-            comunicacao(1,botao);
+            if(apertou == 1){
+                botao = i+1;
+
+                // ACENDE O LED
+                acender_leds(botao,50);
+
+                // ENVIA O DADO PARA A OUTRA ESFERA
+                comunicacao_sec(1,botao);
+
+                break;
+            }
         }
-    }
-    printf("Qual botao apertou? ");
-    scanf("%d",&botao);
-    acender_leds(botao, 50);
+
     return botao;
 }
 int acender_leds(int led, int tempo){
-    printf("LED %d aceso", led);
+    printf("LED %d aceso\n", led);
     delay_ms(tempo);
 }
 
@@ -63,7 +79,7 @@ int main(){
             break;
         case 1:
             botao = ler_botoes();
-            comunicacao_sec(1,botao);
+            //comunicacao_sec(1,botao);
             proximo_estado = 0;
             break;
         case 2:
