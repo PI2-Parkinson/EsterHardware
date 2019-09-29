@@ -2,25 +2,25 @@
 #include <stdlib.h>
 #include <time.h>
 
-/*#define LEDVermelho 2
-#define LEDVerde 3
-#define LEDAzul 4
-#define LEDAmarelo 5
-#define LEDLaranja 6
+#define LEDVermelho 13
+#define LEDLaranja 12
+#define LEDAmarelo 14
+#define LEDVerde 02
+#define LEDAzul 04
 
-#define ButtonVermelho 7
-#define ButtonVerde 8
-#define ButtonAzul 9
-#define ButtonAmarelo 10
-#define ButtonLaranja 11*/
+#define ButtonVermelho 25
+#define ButtonLaranja 33
+#define ButtonAmarelo 32
+#define ButtonVerde 27
+#define ButtonAzul 26
 
 
 void setup() {
-  Serial.begin(9600); 
-  for (int contador = 2; contador <=6; contador++)
-    pinMode(contador, OUTPUT);
-  for (int contador = 7; contador <=11; contador++)
-    pinMode(contador, INPUT_PULLUP);
+  Serial.begin(115200); 
+  for (int contador = 1; contador <= 5; contador++)
+    pinMode(definir_LED(contador), OUTPUT);
+  for (int contador = 1; contador <= 5; contador++)
+    pinMode(definir_botao(contador), INPUT_PULLUP);
     
 
 }
@@ -297,6 +297,7 @@ int ler_botoes(int nivel, int* sequencia){
     int botao, botao_sec, apertou = 0;
     int errou = 0;
     int i, cont = 0;
+    int porta = 0;
 
     // LER CADA BOTAO E VERIFICA SE ERROU
     while(cont < nivel){
@@ -305,7 +306,8 @@ int ler_botoes(int nivel, int* sequencia){
         for (i = 0; i < 5 ; i++){
             //printf("O botao %d foi apertado? 0 nao e 1 sim\n",i+1);
             //ler_dado(&apertou);
-            apertou = not(digitalRead(i+7));
+            
+            apertou = not(digitalRead(definir_botao(i+1)));
             
             if(apertou == 1){
                 delay_ms(200);
@@ -336,9 +338,9 @@ void acender_leds(int LED, int tempo){
     int vetor_led[3] = {LED,tempo, 0};
 
     //printf("LED %d aceso\n", LED);
-    digitalWrite(LED+1, HIGH);
+    digitalWrite(definir_LED(LED), HIGH);
     delay_ms(tempo);
-    digitalWrite(LED+1,LOW);
+    digitalWrite(definir_LED(LED),LOW);
 
     comunicacao(6, 1, vetor_led);
 }
@@ -369,6 +371,53 @@ void ler_dado(int* retorno){
   Serial.println(dado);
   retorno[0] = dado;
 }
+
+int definir_botao(int escolha){
+  int porta = 0;
+  switch(escolha){
+    case 1:
+      porta = ButtonVermelho;
+      break;
+    case 2:
+      porta = ButtonLaranja;
+      break;
+    case 3:
+      porta = ButtonAmarelo;
+      break;
+    case 4:
+      porta = ButtonVerde;
+      break;
+    case 5:
+      porta = ButtonAzul;
+      break; 
+  }
+
+ return porta;
+}
+
+int definir_LED(int escolha){
+  int porta = 0;
+  switch(escolha){
+    case 1:
+      porta = LEDVermelho;
+      break;
+    case 2:
+      porta = LEDLaranja;
+      break;
+    case 3:
+      porta = LEDAmarelo;
+      break;
+    case 4:
+      porta = LEDVerde;
+      break;
+    case 5:
+      porta = LEDAzul;
+      break; 
+  }
+
+ return porta;
+}
+
 
 
 
