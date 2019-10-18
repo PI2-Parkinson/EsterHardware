@@ -119,7 +119,13 @@ int grau_tremor(int modo, double** fft_dado, int tamanho){
     }
 
     amplitude_total = sqrt(pow(amplitude[0],2)+pow(amplitude[1],2)+pow(amplitude[2],2));
-    grau = (int)((log10(amplitude_total)-beta)/alfa);
+    grau = (int)((log10(amplitude_total)-beta)/alfa); // Grau vai de 0 a 4
+    
+    if(grau > 4){
+      grau = 4;
+    }else if (grau<0){
+      grau = 0;
+    }
     
     return grau;
 }
