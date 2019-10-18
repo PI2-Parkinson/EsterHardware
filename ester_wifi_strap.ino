@@ -48,7 +48,7 @@ void loop() {
   client.connect(server, 80);
   digitalWrite(ledPin, LOW);
   Serial.println("********************************");
-  //Serial.print("Byte sent to the AP: ");
+  Serial.print("Byte sent to the AP: ");
   Serial.println(client.print("Hi, boss!"));
   String answer = client.readStringUntil('\r');
   Serial.print("From the AP: " + answer);
