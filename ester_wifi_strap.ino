@@ -49,7 +49,7 @@ void loop() {
   digitalWrite(ledPin, LOW);
   Serial.println("********************************");
   Serial.print("Byte sent to the AP: ");
-  Serial.println(client.print("Hi, boss!"));
+  Serial.println(client.print("Hi, boss!\r"));
   String answer = client.readStringUntil('\r');
   Serial.print("From the AP: " + answer);
   int i, len;  // https://circuits4you.com/2018/03/09/how-to-convert-int-to-string-on-arduino/
