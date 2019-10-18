@@ -39,10 +39,10 @@ int* ajuste_media(int* vetor_crr, int quant){
 
 double* fft_emC(int* dados,int n){
 
-    //double* tempo=new double[n];//armazena as 200 amostras igualmente espaÁadas
+    //double* tempo=new double[n];//armazena as 200 amostras igualmente espa√ßadas
 
     double tfr[n]; // armazena a parte real do sinal
-    double tfi[n]; // armazena a parte imagin·ria do sinal
+    double tfi[n]; // armazena a parte imagin√°ria do sinal
     double* tf_abs;
 
     tf_abs = malloc(n*sizeof(double));
