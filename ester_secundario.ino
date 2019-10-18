@@ -8,20 +8,15 @@ extern "C" {
 byte ledPin = 2;
 char ssid[] = "Wemos_AP";           // SSID of your AP
 char pass[] = "Wemos_comm";         // password of your AP
+String teste = "88";
 
-IPAddress server(192,168,4,15);     // IP address of the AP
+IPAddress server(192,168,4,10);     // IP address of the AP
 WiFiClient client;
 
-//int contor = 0;
 
 void setup() {
-  digitalWrite(rezet, HIGH);  // http://nicuflorica.blogspot.com/2015/11/termostat-controlat-de-pe-o-pagina-web-2.html
-  pinMode(rezet, OUTPUT);  // hard reset - https://github.com/esp8266/Arduino/issues/1622 
-  digitalWrite(rezet, HIGH);
- pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW); 
-  delay(2000);
-  Serial.begin(115200);//
+
+  Serial.begin(115200);
   delay(500);
   WiFi.disconnect();
   delay(500);
@@ -45,46 +40,24 @@ void setup() {
 }
 
 void loop() {
-  client.connect(server, 80);//conecta com o servidor
-  digitalWrite(ledPin, LOW);
-  Serial.println("********************************");
-  Serial.print("Byte sent to the AP: \r");//
-  Serial.println(client.print("Hi, boss!\r"));
-  String answer = client.readStringUntil('\r');
-  Serial.print("Teste_secundario: " + answer);
-  //int i, len;  // https://circuits4you.com/2018/03/09/how-to-convert-int-to-string-on-arduino/
-  //int result=0; 
- // len = answer.length();//
-  //Serial.print("/");//
-  //Serial.println(len);//
+  client.connect(server, 80);
 
+  Serial.println("********************************");
+
+  client.print(teste + "\r");
+  
+  String answer = client.readStringUntil('\r');
+  
+  Serial.println("Secundário - Recebeu da principal: " + answer);
+  
   client.flush();
-  digitalWrite(ledPin, HIGH);
+ 
   client.stop();
-  Serial.println();
-  //Serial.print("Counter = ");//
-  //Serial.println(contor);//
-  //contor = contor +1;//
+
   delay(1000);
  
 if (WiFi.status() != WL_CONNECTED) 
 {
-  Serial.println("disconect from wifi - reset");
-  digitalWrite(rezet, LOW); 
-  delay(100); //After than reset no need to delay but I put it for fun :)
- }
+  Serial.println("disconect from wifi - reset");}
 
-
-//if (len < 1)//
-  //{                                   //   https://techtutorialsx.com/2017/12/29/esp8266-arduino-software-restart/
-   //Serial.println("lost communications - reset");
-  //digitalWrite(rezet, LOW); delay(100); //After than reset no need to delay but I put it for fun :) 
-  //} 
- 
- 
-//if (contor > 200)//
-  //{ 
-    //Serial.println("obercount - reset");
-//digitalWrite(rezet, LOW); delay(100); //After than reset no need to delay but I put it for fun :)
-//}
-}  // https://github.com/esp8266/Arduino/issues/1622
+}
