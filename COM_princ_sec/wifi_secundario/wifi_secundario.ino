@@ -5,7 +5,7 @@
 
 char ssid[] = "ESTER_com_AP";           // SSID 
 char pass[] = "ESTER_com_comm";         // SENHA
-String transmissao = "SIM"; 
+String transmissao = "teste_SIM"; 
 String QBOTAO = "QBOTAO"; 
 String ACL = "ACL";
 String APL = "APL";
@@ -46,9 +46,9 @@ void loop_com_secundario_principal() {
    delay (500);
    Serial.println("********************************");
    String answer11 = client.readStringUntil('\r');
-      if (answer11 == "sim_enviar_NVBOTAO") {
+      if (answer11 == "teste_SIM_enviar_NVBOTAO") {
       Serial.println("Secundário recebeu - Algum botão novo foi apertado?");
-      String botao_selecionado = "botao_1"; 
+      String botao_selecionado = "Botão_1"; 
       Serial.println (answer11);
       client.print(QBOTAO + "\r");
       client.flush();
@@ -65,7 +65,7 @@ void loop_com_secundario_principal() {
      delay(500);
      Serial.println("********************************");
      String answer44 = client.readStringUntil('\r');
-        if (answer44 == "ACENDER") {
+        if (answer44 == "enviar_ACL") {
           Serial.println("Secundário recebeu - Acender leds?");
           Serial.println (answer44);
           client.flush();
@@ -75,7 +75,7 @@ void loop_com_secundario_principal() {
       delay(500);
       Serial.println("********************************");
       String answer55 = client.readStringUntil('\r');
-        if (answer55 == "APAGAR") {
+        if (answer55 == "enviar_APL") {
           Serial.println("Secundário recebeu - Apagar leds?");
           Serial.println (answer55);
           client.flush();
