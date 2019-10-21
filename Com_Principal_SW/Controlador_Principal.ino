@@ -40,7 +40,6 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 };
 
 
-
 void setup() {
 
   //Definindo LEDS e Botões
@@ -164,6 +163,9 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
     case 4: // pulseira
         switch(escolha){
         case 0:
+      			retorno = receber_modo_grau();
+      			//Enviar para a base o modo
+      			//Receber da base o grau, no caso aqui é 3
             retorno = enviar_grau_tremor(3); //ADICIONAR FUNÇÃO QUE RECEBE O GRAU NO LUGAR DO 3
             break;
         default:
@@ -601,6 +603,21 @@ int exercicio3_finalizado( ){
   }while(strcmp(codigo_recebido,"F1") != 0);
 
   return 1;
+}
+
+//RECEBER O MODO DE MEDIDA DO DO GRAU DE TREMOR
+int receber_modo_grau(){
+
+  int grau = 0;
+  char* codigo_recebido = "MTX";
+    do{
+      enviar_codigo("MT");
+      codigo_recebido = receber_codigo(3);
+    }while(codigo_recebido[0] != 'M'&& codigo_recebido[1] != 'T');
+  
+  grau = (int)codigo_recebido[2] - 48;
+
+  return grau;
 }
 
 //ENVIAR O GRAU DE TREMOR PARA O CELULAR
