@@ -9,11 +9,8 @@ WiFiServer server(80);
 IPAddress IP(192,168,4,10);
 IPAddress mask = (255, 255, 255, 0);
 
-//String receb = "ITR"; //mensagem - iniciar tremor recebida
-//String AETR = "AETR"; //mensagem - aviso de envio de tremor recebido
-
-String recebida = "sim_enviar_NVBOTAO";// mensagem - Novo botão foi apertado na esfera secundária? teste1_sim
-String enviar_BOTAO = "enviar_BOTAO"; // mensagem - Qual botão foi apertado? teste1_botao1
+String recebida = "sim_enviar_NVBOTAO";
+String enviar_BOTAO = "enviar_BOTAO"; 
 String ACENDER = "ACENDER";
 String APAGAR = "APAGAR";
 
@@ -46,7 +43,6 @@ void loop_com_principal_secundario() {
   Serial.println("********************************");
   String answer22 = client.readStringUntil('\r');
   Serial.println ("Qual botão foi apertado?");
-  //Serial.println(answer22);
       if (answer22 == "QBOTAO") {
       client.print (enviar_BOTAO);
       delay (1000);
