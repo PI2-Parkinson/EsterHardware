@@ -9,10 +9,10 @@ WiFiServer server(80);
 IPAddress IP(192,168,4,10);
 IPAddress mask = (255, 255, 255, 0);
 
-String recebida = "sim_enviar_NVBOTAO";
-String enviar_BOTAO = "enviar_BOTAO"; 
-String ACENDER = "ACENDER";
-String APAGAR = "APAGAR";
+String recebida = "teste_SIM_enviar_NVBOTAO";// mensagem - Novo botão foi apertado na esfera secundária? teste1_sim
+String enviar_BOTAO = "enviar_BOTAO"; // mensagem - Qual botão foi apertado? teste1_botao1
+String enviar_ACL = "enviar_ACL";
+String enviar_APL = "enviar_APL";
 
 void setup_com_principal_secundario() {
   Serial.begin(115200); 
@@ -35,7 +35,7 @@ void loop_com_principal_secundario() {
   String answer11 = client.readStringUntil('\r');
   Serial.println ("Novo botao foi apertado na esfera secundária?");
   Serial.println (answer11);
-    if (answer11 == "SIM") {
+    if (answer11 == "teste_SIM") {
     client.print(recebida + "\r");
       delay (3000);
       client.flush();
@@ -43,12 +43,13 @@ void loop_com_principal_secundario() {
   Serial.println("********************************");
   String answer22 = client.readStringUntil('\r');
   Serial.println ("Qual botão foi apertado?");
+  //Serial.println(answer22);
       if (answer22 == "QBOTAO") {
       client.print (enviar_BOTAO);
       delay (1000);
      
   String answer33 = client.readStringUntil('\r');
-  Serial.println ("Botão apertado: " + answer33);
+  Serial.println (answer33);
      }
     }
     
@@ -57,7 +58,7 @@ void loop_com_principal_secundario() {
    Serial.println ("Acender leds?");
    Serial.println (answer44);
       if (answer44 == "ACL") {
-      client.print(ACENDER);
+      client.print(enviar_ACL);
       delay (1000);
      }
 
@@ -66,7 +67,7 @@ void loop_com_principal_secundario() {
    Serial.println ("Apagar leds?");
    Serial.println (answer55);
       if (answer55 == "APL") {
-      client.print(APAGAR);
+      client.print(enviar_APL);
       delay (1000);
   }
       return;
