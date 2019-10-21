@@ -56,7 +56,7 @@ void loop_com_secundario_principal() {
     Serial.println("********************************");
     String answer22 = client.readStringUntil('\r');
         if (answer22 == "enviar_BOTAO") {
-        Serial.println("Secundário recebeu - Qual botão foi pressionado:");
+        Serial.println("Secundário recebeu - Qual botão foi pressionado?");
         Serial.println (answer22);
         client.print (botao_selecionado + "\r");//
         client.flush();}
