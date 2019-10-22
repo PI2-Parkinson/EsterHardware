@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include <time.h>
 
+//Bibliotecas do BLE
+#include <BLEDevice.h>
+#include <BLEUtils.h>
+#include <BLEServer.h>
+
+//ENTRADAS E SAIDAS
+//LEDs e botões
 #define LEDVermelho 13
 #define LEDLaranja 12
 #define LEDAmarelo 14
@@ -14,19 +21,61 @@
 #define ButtonVerde 27
 #define ButtonAzul 26
 
+//BLE
+#define SERVICE_UUID        "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
+
+BLEServer* pServer = NULL;
+BLECharacteristic* pCharacteristic = NULL;
+
+char* codigo_BLE;
+
+class MyCallbacks: public BLECharacteristicCallbacks {
+    void onWrite(BLECharacteristic *pCharacteristic) {
+      std::string value = pCharacteristic->getValue();
+      
+      strcpy(codigo_BLE,value.c_str());
+      //Serial.println("Salvou o dado");
+    }
+};
+
 
 void setup() {
+
+  //Definindo LEDS e Botões
   Serial.begin(115200); 
   for (int contador = 1; contador <= 5; contador++)
     pinMode(definir_LED(contador), OUTPUT);
   for (int contador = 1; contador <= 5; contador++)
     pinMode(definir_botao(contador), INPUT_PULLUP);
-    
 
+  //Definindo BLE
+  BLEDevice::init("ESTER"); //Nome do BLE
+  pServer = BLEDevice::createServer(); //Criando Servo
+  BLEService *pService = pServer->createService(SERVICE_UUID); //Criando serviço
+  pCharacteristic = pService->createCharacteristic(
+                                         CHARACTERISTIC_UUID,
+                                        BLECharacteristic::PROPERTY_READ   |
+                                        BLECharacteristic::PROPERTY_WRITE  
+                                       );
+                                       
+  //pCharacteristic->addDescriptor(new BLE2902());
+  pCharacteristic->setCallbacks(new MyCallbacks());
+  pCharacteristic->setValue("C");
+  pService->start();
+  BLEAdvertising *pAdvertising = pServer->getAdvertising();
+  pAdvertising->start();
+  codigo_BLE = (char*)malloc(34*sizeof(char));
+  strcpy(codigo_BLE,"0000");
+  
 }
 
 int sequencia_padrao[6] = {1,2,3,4,5,0};
 
+/*******************************************************************
+ *                      FUNÇÕES PRINCIPAIS 
+ *                    DO CONTROLADOR PRINCIPAL 
+ ******************************************************************/
 int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
     int retorno;
     int i;
@@ -34,12 +83,10 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
     case 0: // modo principal
         switch(escolha){
         case 0:
-           Serial.print("Qual modo? ");
-            ler_dado(&retorno);
+            retorno = definir_modo_op();
             break;
         case 1:
-           Serial.print("O jogo foi finalizado? 0 nao e 1 sim ");
-            ler_dado(&retorno);
+            retorno = botao_parar_apertado();
             break;
         default:
            Serial.print("Comando invalido!\n");
@@ -49,29 +96,26 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
     case 1: // exercício 1
         switch(escolha){
         case 1:
-           Serial.print("O botao de para foi apertado? 0- nao 1- sim\n");
-            ler_dado(&retorno);
+            retorno = botao_parar_apertado();
             break;
         case 2:
-           Serial.print("Ele errou, deseja continuar? 0- nao 1- sim \n");
-            ler_dado(&retorno);
+            retorno = errou_sequencia();
             break;
         case 3:
-           Serial.print("Qual nivel? ");
-            ler_dado(&retorno);
+            retorno = qual_nivel(1);
             break;
         case 4:
-           Serial.print("Nivel: ");
-           Serial.println(vetor_de_dados[0]);
+            retorno = enviar_nivel(vetor_de_dados[0],1);
             break;
         case 5:
             i = 0;
-           Serial.print("Toca sequencia: ");
             while(vetor_de_dados[i]!=0){
-               Serial.print(vetor_de_dados[i]);
+                Serial.println(vetor_de_dados[i]);
                 i++;
             }
-           Serial.print("\n");
+            Serial.println(vetor_de_dados[i]);
+            enviar_sequencia(i,vetor_de_dados);
+            retorno = finalizou_sequencia();
             break;
         default:
            Serial.print("Comando invalido!\n");
@@ -81,29 +125,26 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
     case 2: // exercício 2
         switch(escolha){
         case 1:
-           Serial.print("O botao de para foi apertado? 0- nao 1- sim\n");
-            ler_dado(&retorno);
+            retorno = botao_parar_apertado();
             break;
         case 2:
-           Serial.print("Ele errou, deseja continuar? 0- nao 1- sim \n");
-            ler_dado(&retorno);
+            retorno = errou_sequencia();
             break;
         case 3:
-           Serial.print("Qual nivel? ");
-            ler_dado(&retorno);
+            retorno = qual_nivel(2);
             break;
         case 4:
-           Serial.print("Nivel: ");
-           Serial.println(vetor_de_dados[0]);
+            retorno = enviar_nivel(vetor_de_dados[0],2);
             break;
         case 5:
             i = 0;
-           Serial.print("Mostra sequencia: ");
             while(vetor_de_dados[i]!=0){
-               Serial.print(vetor_de_dados[i]);
                 i++;
             }
-           Serial.print("\n");
+            enviar_sequencia(i,vetor_de_dados);
+            for(int j = 0 ; i < i ; j++)
+              acender_leds(vetor_de_dados[j],333);
+            retorno = finalizou_sequencia();
             break;
         default:
            Serial.print("Comando invalido!\n");
@@ -113,8 +154,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
     case 3: // exercício 3
         switch(escolha){
         case 0:
-           Serial.print("Finalizou o jogo? 0 - nao e 1 - sim");
-            ler_dado(&retorno);
+            retorno = exercicio3_finalizado();
             break;
         default:
             break;
@@ -123,8 +163,10 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
     case 4: // pulseira
         switch(escolha){
         case 0:
-           Serial.print("O dado foi enviado para o software? 0 - nao e 1 - sim ");
-            ler_dado(&retorno);
+			retorno = receber_modo_grau();
+			//Enviar para a base o modo
+			//Receber da base o grau, no caso aqui é 3
+            retorno = enviar_grau_tremor(3); //ADICIONAR FUNÇÃO QUE RECEBE O GRAU NO LUGAR DO 3
             break;
         default:
            Serial.print("Comando invalido!\n");
@@ -133,17 +175,12 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
         break;
     case 5: // Leitura dos botões da esf secundaria
         switch(escolha){
+        case 0:
+          Serial.print("Ler botões na esfera secundária\n");
+          break;
         case 1:
-            retorno = 0;
-            while(retorno == 0){
-               Serial.print("Novo botao foi apertado na esf sec? 0 nao e 1 sim ");
-                ler_dado(&retorno);
-                if(retorno == 1){
-                   Serial.print("Qual botao da esf sec foi apertado? ");
-                    ler_dado(&retorno);
-                }
-
-            }
+          Serial.print("Qual botao da esf sec foi apertado? ");
+          ler_dado(&retorno);
             break;
         default:
            Serial.print("Comando invalido!\n");
@@ -168,6 +205,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
     return retorno;
 }
 
+/********* EXERCÍCIOS ************/
 
 void exercicio1(){
         //INICIO
@@ -292,6 +330,7 @@ void pulseira(){
 }
 
 
+/***** BOTÕES E LEDS ************/
 int ler_botoes(int nivel, int* sequencia){
    Serial.print("Digite a seq de botoes\n");
     int botao, botao_sec, apertou = 0;
@@ -299,8 +338,11 @@ int ler_botoes(int nivel, int* sequencia){
     int i, cont = 0;
     int porta = 0;
 
+
     // LER CADA BOTAO E VERIFICA SE ERROU
     while(cont < nivel){
+         //FALAR QUE É PARA LER BOTÕES DA SECUNDARIA
+         //comunicacao(5,0, sequencia_padrão);
 
         // VERIFICAR TODOS OS CINCO BOTOES
         for (i = 0; i < 5 ; i++){
@@ -341,8 +383,8 @@ void acender_leds(int LED, int tempo){
     digitalWrite(definir_LED(LED), HIGH);
     delay_ms(tempo);
     digitalWrite(definir_LED(LED),LOW);
-
-    comunicacao(6, 1, vetor_led);
+    if(tempo == 333)
+      comunicacao(6, 1, vetor_led);
 }
 
 
@@ -417,18 +459,224 @@ int definir_LED(int escolha){
 
  return porta;
 }
+/*******************************************************************/
 
 
+/*******************************************************************
+ *                      FUNÇÕES DA COMUNICAÇÃO ENTRE
+ *                  CONTROLADOR PRINCIPAL E SMARTPHONE 
+ ******************************************************************/
+//DEFINIR QUAL MODO - 1, 2, 3 - exercícios 1, 2, 3; 4 - strap
+int definir_modo_op(){
+  
+  String recebido_ble;
+  int modo = 0;
+  char* codigo_recebido = "M0";
+
+  do{
+    Serial.println("Vai enviar QM");
+    enviar_codigo("QM");
+    Serial.println("Vai receber do bluetooth");
+    codigo_recebido = receber_codigo(2);
+  }while(codigo_recebido[0] != 'M');
+  
+  modo = (int)codigo_recebido[1] - 48;
+
+  return modo;
+  
+}
+
+//O BOTÃO DE PARAR NO MEIO DO JOGO FOI APERTADO?
+int botao_parar_apertado( ){// 0 Não apertou | 1 Apertou
+
+  int apertou = 0;
+  char* codigo_recebido = "PX";
+
+  do{
+    enviar_codigo("BP");
+    codigo_recebido = receber_codigo(2);
+  }while(codigo_recebido[0] != 'P');
+  
+  apertou = (int)codigo_recebido[1] - 48;
+
+  return apertou; //0 Não apertou | 1 Apertou
+}
+
+//O USUÁRIO ERROU A SEQUENCIA, ELE QUER CONTINUAR?
+int errou_sequencia( ){//0 Não quer continuar | 1 Continuar nivel 0
+  String recebido_ble;
+  int quer_continuar = 0;
+  char* codigo_recebido = "C0";
+
+  do{
+    enviar_codigo("ES");
+    codigo_recebido = receber_codigo(2);
+  }while(codigo_recebido[0] != 'C');
+  
+  quer_continuar = (int)codigo_recebido[1] - 48;
+
+  return quer_continuar; //0 Não quer continuar | 1 Continuar nivel 0
+}
+
+//QUAL FOI O NÍVEL SALVO NO APLICATIVO?
+int qual_nivel(int exercicio){
+
+  int nivel = 0;
+  char* codigo_recebido = "N0XX";
+
+  if(exercicio == 1)
+    do{
+      enviar_codigo("N1");
+      codigo_recebido = receber_codigo(4);
+    }while(codigo_recebido[0] != 'N'&& codigo_recebido[1] != '1');
+  else
+    do{
+      enviar_codigo("N2");
+      codigo_recebido = receber_codigo(4);
+    }while(codigo_recebido[0] != 'N'&& codigo_recebido[1] != '2');
+  
+  nivel = 10*((int)codigo_recebido[2] - 48)+1*((int)codigo_recebido[3] - 48);
+
+  return nivel;
+}
+
+//JOGO FINALIZADO, ENVIAR O NÍVEL PARA O APLICATIVO
+int enviar_nivel(int nivel, int exercicio){
+  
+  char* codigo_recebido; 
+  char codigo_a_enviar[5] = "V0XX";
+
+  if(exercicio == 1)
+    codigo_a_enviar[1] = '1';
+  else
+    codigo_a_enviar[1] = '2';
+  do{
+    codigo_a_enviar[2] = nivel/10 + '0';
+    codigo_a_enviar[3] = nivel%10 + '0';
+    enviar_codigo(codigo_a_enviar);
+    codigo_recebido = receber_codigo(2);
+  }while(strcmp(codigo_recebido,"SN") != 0);
+  
+  return 0;
+}
+
+//ENVIAR SEQUENCIA A SER APRESENTADA
+int enviar_sequencia(int quantidade, int* vetor_de_dados){
+  
+  char* codigo_recebido;
+  char sequencia[36] = "SQXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXF";
+  
+  for(int i = 0 ; i < quantidade ; i++)
+    sequencia[i+2] = vetor_de_dados[i] + '0';
+  sequencia[quantidade+2] = 'F'; 
+  sequencia[quantidade+3] = '\0'; 
+  do{
+    enviar_codigo(sequencia);
+    codigo_recebido = receber_codigo(2);
+  }while(strcmp(codigo_recebido,"SR") != 0);
+
+  
+  return 0;
+}
+
+//AVISA QUE FINALIZOU A SEQUENCIA
+int finalizou_sequencia(){
+  char* codigo_recebido;
+  
+  do{
+    codigo_recebido = receber_codigo(2);
+  }while(strcmp(codigo_recebido,"SF") != 0);
+  
+  return 0;
+}
+
+//SABER SE O EXERCÍCIO 3 FOI FINALIZADO
+int exercicio3_finalizado( ){
+
+  char* codigo_recebido;
+  
+  do{
+    enviar_codigo("F3");
+    codigo_recebido = receber_codigo(2);
+  }while(strcmp(codigo_recebido,"F1") != 0);
+
+  return 1;
+}
+
+//RECEBER O MODO DE MEDIDA DO DO GRAU DE TREMOR
+int receber_modo_grau(){
+
+  int grau = 0;
+  char* codigo_recebido = "MTX";
+    do{
+      enviar_codigo("MT");
+      codigo_recebido = receber_codigo(3);
+    }while(codigo_recebido[0] != 'M'&& codigo_recebido[1] != 'T');
+  
+  grau = (int)codigo_recebido[2] - 48;
+
+  return grau;
+}
+
+//ENVIAR O GRAU DE TREMOR PARA O CELULAR
+int enviar_grau_tremor(int grau_tremor){
+
+  char codigo_a_enviar[4] = "GTX";
+  char* codigo_recebido;
+  
+  codigo_a_enviar[2] = grau_tremor + '0';
+  do{
+    enviar_codigo(codigo_a_enviar);
+    codigo_recebido = receber_codigo(3);
+  }while(strcmp(codigo_recebido,"GTR") != 0);
+
+  return 0;
+}
+
+//FUNÇÃO PARA ENVIAR CÓDIGO CHAR* PARA O CELULAR VIA BLE
+void enviar_codigo(char* vetor){
+
+  pCharacteristic->setValue(vetor);
+  Serial.print("Enviou :'");
+  Serial.print(vetor);
+  Serial.print("'\n");
+}
+
+//FUNÇÃO PARA RECEBER CÓDIGO CHAR* PARA O CELULAR VIA BLE
+char* receber_codigo(int tamanho){
+  
+  char* codigo_char = (char*)malloc((tamanho+1)*sizeof(char));
+
+  while(strcmp(codigo_BLE,"0000") == 0)
+    delay(100);
+    
+  for (int i = 0 ; i < tamanho; i++)
+    codigo_char[i] = codigo_BLE[i];
+  codigo_char[tamanho] = '\0';
+
+  strcpy(codigo_BLE,"0000");
+  
+  Serial.print("Recebeu pelo BLE :'");
+  Serial.print(codigo_char);
+  Serial.print("'\n");
+  
+ return codigo_char;
+}
 
 
-
-/*****************************************/
+/*******************************************************************/
 
 void loop() {
   int estado_atual = 5;
   int proximo_estado = 0;
   int modo = 0;
-   Serial.print("Vai iniciar o while\n");
+  Serial.print("Conectar com o bluetooth\n");
+  while(strcmp(receber_codigo(1),"C") != 0){
+    enviar_codigo("C");
+    delay(250);
+  }
+  Serial.print("bluetooth conectado\n");
+    
   while(comunicacao(0,1,sequencia_padrao) == 0){
     switch(estado_atual){
       case 0:
