@@ -9,10 +9,10 @@ WiFiServer server(80);
 IPAddress IP(192,168,4,10);
 IPAddress mask = (255, 255, 255, 0);
 
-String recebida = "teste_SIM_enviar_NVBOTAO";// mensagem - Novo botão foi apertado na esfera secundária? teste1_sim
-String enviar_BOTAO = "enviar_BOTAO"; // mensagem - Qual botão foi apertado? teste1_botao1
-String enviar_ACL = "enviar_ACL";
-String enviar_APL = "enviar_APL";
+String sec_ler_botoes = "sec_ler_botoes";// mensagem - Novo botão foi apertado na esfera secundária? teste1_sim
+String sec_botao_ap = "sec_botao_ap"; // mensagem - Qual botão foi apertado? teste1_botao1
+String sec_led_acender = "sec_led_acender";
+String sec_led_on = "sec_led_on";
 
 void setup_com_principal_secundario() {
   Serial.begin(115200); 
@@ -35,8 +35,8 @@ void loop_com_principal_secundario() {
   String answer11 = client.readStringUntil('\r');
   Serial.println ("Novo botao foi apertado na esfera secundária?");
   Serial.println (answer11);
-    if (answer11 == "teste_SIM") {
-    client.print(recebida + "\r");
+    if (answer11 == "botao_ou_led") {
+    client.print(sec_ler_botoes + "\r");
       delay (3000);
       client.flush();
    
@@ -44,12 +44,12 @@ void loop_com_principal_secundario() {
   String answer22 = client.readStringUntil('\r');
   Serial.println ("Qual botão foi apertado?");
   //Serial.println(answer22);
-      if (answer22 == "QBOTAO") {
-      client.print (enviar_BOTAO);
+      if (answer22 == "enviar_botao_ap") {
+      client.print (sec_botao_ap);
       delay (1000);
      
   String answer33 = client.readStringUntil('\r');
-  Serial.println (answer33);
+  Serial.println ("Botão apertado: " + answer33);
      }
     }
     
@@ -57,17 +57,17 @@ void loop_com_principal_secundario() {
    String answer44 = client.readStringUntil('\r');
    Serial.println ("Acender leds?");
    Serial.println (answer44);
-      if (answer44 == "ACL") {
-      client.print(enviar_ACL);
+      if (answer44 == "enviar_led_ac") {
+      client.print(sec_led_acender);
       delay (1000);
      }
 
    Serial.println("********************************");
    String answer55 = client.readStringUntil('\r');
-   Serial.println ("Apagar leds?");
+   Serial.println ("Acender qual led?");
    Serial.println (answer55);
-      if (answer55 == "APL") {
-      client.print(enviar_APL);
+      if (answer55 == "receber_led") {
+      client.print(sec_led_on);
       delay (1000);
   }
       return;
