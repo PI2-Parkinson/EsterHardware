@@ -173,22 +173,7 @@ void loop() {
     btn4 = digitalRead(BTN4);
     Serial.print(msg);
   }
-//  else
-//  {
-//    int analog = 0;
-//    if (analogRead(BTN5) > 512)
-//    {
-//      analog = 1;
-//    }
-//    if (btn5 != analog)
-//    {
-//      send_state = true;
-//      msg = "SE1.BT5." + String(analog) + "\n\r";
-//      btn5 = analog;
-//      Serial.print(msg);
-//    }
-//  }
-
+  
   if (send_state)
   {
     client.publish("secundaria", msg.c_str());
