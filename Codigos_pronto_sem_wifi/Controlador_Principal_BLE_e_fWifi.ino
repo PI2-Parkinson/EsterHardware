@@ -703,15 +703,15 @@ int bs_receber_grau_tremor(int modo_de_medida){
   int grau = 5;
   
   do{
-    wifi_enviar("IT",2);
-    codigo_recebido = wifi_receber();
+    wifi_enviar_bs("IT",2);
+    codigo_recebido = wifi_receber_bs();
   }while(strcmp(codigo_recebido,"AET")!=0);
 
   codigo_a_enviar[2] = modo_de_medida + '0';
   
   do{
-    wifi_enviar(codigo_a_enviar,3);
-    codigo_recebido = wifi_receber();
+    wifi_enviar_bs(codigo_a_enviar,3);
+    codigo_recebido = wifi_receber_bs();
   }while(codigo_recebido[0] != 'G');
 
   grau = (int)codigo_recebido[1] - '0';
@@ -719,7 +719,7 @@ int bs_receber_grau_tremor(int modo_de_medida){
   return grau;
 }
 
-char* wifi_receber( ){
+char* wifi_receber_bs( ){
   char* strc;
   /*String str = client.readStringUntil('\r');
   client.flush();
@@ -740,7 +740,7 @@ char* wifi_receber( ){
   
   return strc;
 }
-int wifi_enviar(char* string, int tamanho){
+int wifi_enviar_bs(char* string, int tamanho){
    /*client.flush();
    client.print( String(string) + "\r");*/
    
