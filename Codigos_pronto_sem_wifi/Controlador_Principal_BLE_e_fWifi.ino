@@ -704,14 +704,14 @@ int bs_receber_grau_tremor(int modo_de_medida){
   
   do{
     wifi_enviar_bs("IT",2);
-    codigo_recebido = wifi_receber_bs();
+    codigo_recebido = wifi_receber_bs(3);
   }while(strcmp(codigo_recebido,"AET")!=0);
 
   codigo_a_enviar[2] = modo_de_medida + '0';
   
   do{
     wifi_enviar_bs(codigo_a_enviar,3);
-    codigo_recebido = wifi_receber_bs();
+    codigo_recebido = wifi_receber_bs(2);
   }while(codigo_recebido[0] != 'G');
 
   grau = (int)codigo_recebido[1] - '0';
@@ -719,7 +719,7 @@ int bs_receber_grau_tremor(int modo_de_medida){
   return grau;
 }
 
-char* wifi_receber_bs( ){
+char* wifi_receber_bs(int tamanho ){
   char* strc;
   /*String str = client.readStringUntil('\r');
   client.flush();
@@ -750,6 +750,13 @@ int wifi_enviar_bs(char* string, int tamanho){
   
    return 0;
 }
+
+/******************************************************************/
+/*******************************************************************
+ *                      FUNÇÕES DA COMUNICAÇÃO ENTRE
+ *                  CONTROLADOR PRINCIPAL E SMARTPHONE 
+ ******************************************************************/
+
 
 /******************************************************************/
 
