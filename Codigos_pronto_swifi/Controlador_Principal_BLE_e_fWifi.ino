@@ -634,7 +634,11 @@ int receber_modo_grau(){
       enviar_codigo("MT");
       codigo_recebido = receber_codigo(3);
     }while(codigo_recebido[0] != 'M'&& codigo_recebido[1] != 'T');
-  
+
+    do{
+      codigo_recebido = receber_codigo(2);
+    }while(strcmp(codigo_recebido,"IT")!= 0);
+    
   grau = (int)codigo_recebido[2] - 48;
 
   return grau;
