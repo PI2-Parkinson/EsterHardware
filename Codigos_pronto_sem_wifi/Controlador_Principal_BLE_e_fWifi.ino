@@ -198,9 +198,11 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
     case 5: // Leitura dos botões da esf secundaria
         switch(escolha){
         case 0:
-          retorno = sec_ler_botoes();
+          Serial.print("Ler botões na esfera secundária\n");
+          break;
         case 1:
-            retorno = sec_botao_ap();
+          Serial.print("Qual botao da esf sec foi apertado? ");
+          ler_dado(&retorno);
             break;
         default:
            Serial.print("Comando invalido!\n");
@@ -210,9 +212,10 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados){
     case 6: // acender leds da esfera secundaria
         switch(escolha){
         case 1:
-            sec_led_acender();
-            retorno = sec_led_on(vetor_de_dados[0]);
-            //delay_ms(vetor_de_dados[1]);
+           Serial.print("LED esf sec ");
+           Serial.print(vetor_de_dados[0]);
+           Serial.print("aceso\n");
+            delay_ms(vetor_de_dados[1]);
             break;
         default:
             break;
@@ -378,8 +381,8 @@ int ler_botoes(int nivel, int* sequencia){
                 acender_leds(botao,50);
 
                 //VERIFICA SE O BOTAO DA ESF SEC FOI APERTADO
-                //botao_sec = comunicacao(5,1,sequencia_padrao);
-                botao_sec = botao;
+                botao_sec = comunicacao(5,1,sequencia_padrao);
+                //botao_sec = botao;
 
                 //VERIFICA SE ESTA CORRETO
                 if(sequencia[cont] == botao && sequencia[cont] == botao_sec && errou == 0)
@@ -402,8 +405,8 @@ void acender_leds(int LED, int tempo){
     digitalWrite(definir_LED(LED), HIGH);
     delay_ms(tempo);
     digitalWrite(definir_LED(LED),LOW);
-    if(tempo == 333)
-      comunicacao(6, 1, vetor_led);
+    //if(tempo == 333)
+      //comunicacao(6, 1, vetor_led);
 }
 
 
@@ -753,89 +756,7 @@ int wifi_enviar_bs(char* string, int tamanho){
  *                      FUNÇÕES DA COMUNICAÇÃO ENTRE
  *                  CONTROLADOR PRINCIPAL E SMARTPHONE 
  ******************************************************************/
-//Novo botão 0-não apertado 1-apertado
 
-int sec_ler_botoes(){
-
-    wifi_enviar_sc("NV",2);
-
-   return 0;
-}
-
-//qual botão 1 a 5
-
-int sec_botao_ap(){
-
-  int botao = 0;
-  char* cod_recebidow;
-  
-  do{
-    //enviar_secundario("QB");
-    wifi_enviar_sc("QB",2);
-    cod_recebidow = wifi_receber_sc();    
-  }while(cod_recebidow[0] != 'B');
-
-  botao = (int)cod_recebidow[1] - 48; // virou inteiro
-
-  return botao;
-}
-//aviso que led vai acender - 0 não vai 1 vai
-
-int sec_led_acender(){
-
-     wifi_enviar_sc("AL",2);
-
-return 0;
-}
-//avisa qual led vai acender
-
-int sec_led_on(int led){
-
-  char* cod_recebidow;
-  char codigo_enviar[3] = "LX";
-
-
-  do{codigo_enviar[1]= led + '0';
-     //enviar_secundario(codigo_enviar);
-     wifi_enviar_sc(codigo_enviar,2);
-     cod_recebidow = wifi_receber_sc();   
-    }while(strcmp(cod_recebidow,"QL")!=0);
-   
-
-return 0;
-}
-
-char* wifi_receber_sc( ){
-  char* strc;
-  /*String str = client.readStringUntil('\r');
-  client.flush();
-  strcpy(strc,str.c_str());*/
-  strc = (char*)malloc(6*sizeof(char));
-  int i = 0;
-
-  while(Serial.available() == 0);
-  while(Serial.available()>0){
-    strc[i] = Serial.read();
-    i++;
-  }
-  strc[i-1] = '\0';
-  
-  Serial.print("Recebou da base via wifi:'");
-  Serial.print(strc);
-  Serial.print("'\n");
-  
-  return strc;
-}
-int wifi_enviar_sc(char* string, int tamanho){
-   /*client.flush();
-   client.print( String(string) + "\r");*/
-   
-   Serial.print("Enviou para a base via wifi:'");
-  Serial.print(string);
-  Serial.print("'\n");
-  
-   return 0;
-}
 
 /******************************************************************/
 
