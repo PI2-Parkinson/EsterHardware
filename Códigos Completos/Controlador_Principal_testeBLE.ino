@@ -79,7 +79,10 @@ class MyCallbacks_sc: public BLECharacteristicCallbacks {
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
-      BLEDevice::startAdvertising();
+      //BLEDevice::startAdvertising();
+      delay(500);
+      pServer->startAdvertising();
+      Serial.println("entrou nessa condição: onConnect");
     };
 
     void onDisconnect(BLEServer* pServer) {
@@ -87,72 +90,7 @@ class MyServerCallbacks: public BLEServerCallbacks {
     }
 };
 
-void setup() {
 
-  //Definindo LEDS e BotÃµes
-  Serial.begin(115200);
-  for (int contador = 1; contador <= 5; contador++)
-    pinMode(definir_LED(contador), OUTPUT);
-  for (int contador = 1; contador <= 5; contador++)
-    pinMode(definir_botao(contador), INPUT_PULLUP);
-
-  //Definindo BLE
-  BLEDevice::init("ESTER"); //Nome do BLE
-  pServer = BLEDevice::createServer(); //Criando Servidor
-  pServer->setCallbacks(new MyServerCallbacks());
-  BLEService *pService = pServer->createService(SERVICE_UUID); //Criando serviÃ§o
-  
-  pCharacteristic = pService->createCharacteristic(
-                      CHARACTERISTIC_UUID,
-                      BLECharacteristic::PROPERTY_READ   |
-                      BLECharacteristic::PROPERTY_WRITE  |
-                      BLECharacteristic::PROPERTY_NOTIFY |
-                      BLECharacteristic::PROPERTY_INDICATE
-                    );
-
-  //pCharacteristic->addDescriptor(new BLE2902());
-  pCharacteristic->setCallbacks(new MyCallbacks());
-  pCharacteristic->setValue("C");
-  pCharacteristic->addDescriptor(new BLE2902());
-  codigo_BLE = (char*)malloc(34 * sizeof(char));
-  strcpy(codigo_BLE, "0000");
-        
-  pCharacteristic_bs = pService->createCharacteristic(
-                         CHARACTERISTIC_BS_UUID,
-                         BLECharacteristic::PROPERTY_READ   |
-                         BLECharacteristic::PROPERTY_WRITE  |
-                         BLECharacteristic::PROPERTY_NOTIFY |
-                         BLECharacteristic::PROPERTY_INDICATE
-                       );
-
-  pCharacteristic_bs->setCallbacks(new MyCallbacks_bs());
-  pCharacteristic_bs->setValue("B");
-  pCharacteristic_bs->addDescriptor(new BLE2902());
-  codigo_BLE_bs = (char*)malloc(6 * sizeof(char));
-  strcpy(codigo_BLE_bs, "0000");
-
-  pCharacteristic_sc = pService->createCharacteristic(
-                         CHARACTERISTIC_SC_UUID,
-                         BLECharacteristic::PROPERTY_READ   |
-                         BLECharacteristic::PROPERTY_WRITE  |
-                         BLECharacteristic::PROPERTY_NOTIFY |
-                         BLECharacteristic::PROPERTY_INDICATE
-                       );
-
-  pCharacteristic_sc->setCallbacks(new MyCallbacks_sc());
-  pCharacteristic_sc->setValue("S");
-  pCharacteristic_sc->addDescriptor(new BLE2902());
-  codigo_BLE_sc = (char*)malloc(6 * sizeof(char));
-  strcpy(codigo_BLE_sc, "0000");
-  
-  pService->start();
-  pAdvertising = pServer->getAdvertising();
-  pAdvertising->addServiceUUID(SERVICE_UUID);
-  pAdvertising->setScanResponse(false);
-  pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
-  pAdvertising->start();
-
-}
 
 
 /*******************************************************************
@@ -260,6 +198,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados) {
       switch (escolha) {
         case 0:
           retorno = sec_ler_botoes();
+          break;
         case 1:
           retorno = sec_botao_ap();
           break;
@@ -276,6 +215,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados) {
           //delay_ms(vetor_de_dados[1]);
           break;
         default:
+          Serial.print("Comando invalido!\n");
           break;
       }
       break;
@@ -402,44 +342,46 @@ void exercicio2() {
 
 }
 void exercicio3() {
-  while (comunicacao(3, 0, sequencia_padrao) == 0);
+  while (comunicacao(3, 0, sequencia_padrao) != 0);
 }
 void pulseira() {
-  while (comunicacao(4, 0, sequencia_padrao) == 0);
+  while (comunicacao(4, 0, sequencia_padrao) != 0);
 }
 
 
 /***** BOTÃ•ES E LEDS ************/
 int ler_botoes(int nivel, int* sequencia) {
   Serial.print("Digite a seq de botoes\n");
-  int botao, botao_sec, apertou = 0;
+  int botao, botao_sec;
+  int apertou = 1;
   int errou = 0;
   int i, cont = 0;
   int porta = 0;
 
-
   // LER CADA BOTAO E VERIFICA SE ERROU
   while (cont < nivel) {
-    //FALAR QUE Ã‰ PARA LER BOTÃ•ES DA SECUNDARIA
-    //comunicacao(5,0, sequencia_padrÃ£o);
+    //FALAR QUE É PARA LER BOTOES DA SECUNDARIA
+    if(apertou == 1)
+      comunicacao(5,0, sequencia_padrao);
 
     // VERIFICAR TODOS OS CINCO BOTOES
     for (i = 0; i < 5 ; i++) {
-      //printf("O botao %d foi apertado? 0 nao e 1 sim\n",i+1);
-      //ler_dado(&apertou);
 
       apertou = not(digitalRead(definir_botao(i + 1)));
 
+      while(digitalRead(definir_botao(i + 1)) == 0);
+      
       if (apertou == 1) {
-        delay_ms(200);
+        //APERTOU BOTAO
         botao = i + 1;
-
+                
         //ACENDE O LED
         acender_leds(botao, 50);
+        //delay_ms(200);
 
         //VERIFICA SE O BOTAO DA ESF SEC FOI APERTADO
-        //botao_sec = comunicacao(5,1,sequencia_padrao);
-        botao_sec = botao;
+        botao_sec = comunicacao(5,1,sequencia_padrao);
+        //botao_sec = botao;
 
         //VERIFICA SE ESTA CORRETO
         if (sequencia[cont] == botao && sequencia[cont] == botao_sec && errou == 0)
@@ -447,6 +389,8 @@ int ler_botoes(int nivel, int* sequencia) {
         else
           errou = 1;
         cont++;
+
+        break;
       }
     }
   }
@@ -538,9 +482,9 @@ int definir_modo_op() {
   char* codigo_recebido = "M0";
 
   do {
-    Serial.println("Vai enviar QM");
+    //Serial.println("Vai enviar QM");
     enviar_codigo("QM");
-    Serial.println("Vai receber do bluetooth");
+    //Serial.println("Vai receber do bluetooth");
     codigo_recebido = receber_codigo(2);
   } while (codigo_recebido[0] != 'M');
 
@@ -761,11 +705,11 @@ int bs_receber_grau_tremor(int modo_de_medida) {
 }
 
 char* wifi_receber_bs(int tamanho ) {
-
+  
   char* codigo_char = (char*)malloc((tamanho + 1) * sizeof(char));
 
   while (strcmp(codigo_BLE_bs, "0000") == 0)
-    delay(50);
+    delay(5);
   /*Serial.print("1.1 Recebou da base via wifi:'");
   Serial.print(codigo_BLE_bs);
   Serial.print("'");*/
@@ -782,11 +726,11 @@ char* wifi_receber_bs(int tamanho ) {
 }
 int wifi_enviar_bs(char* string, int tamanho) {
 
-  while (strcmp(wifi_receber_bs(2), "LD") != 0)
-    delay(500);
+  /*while (strcmp(wifi_receber_sc(2), "XX") != 0)
+    delay(100);*/
   pCharacteristic_bs->setValue(string);
-  while (strcmp(wifi_receber_bs(2), "LD") != 0)
-    delay(500);
+  while (strcmp(wifi_receber_bs(tamanho), string) != 0);
+
   pCharacteristic_bs->setValue("0000");
   Serial.print("Enviou para a base via wifi:'");
   Serial.print(string);
@@ -887,6 +831,72 @@ int wifi_enviar_sc(char* string, int tamanho) {
 }
 
 /******************************************************************/
+void setup() {
+
+  //Definindo LEDS e BotÃµes
+  Serial.begin(115200);
+  for (int contador = 1; contador <= 5; contador++)
+    pinMode(definir_LED(contador), OUTPUT);
+  for (int contador = 1; contador <= 5; contador++)
+    pinMode(definir_botao(contador), INPUT_PULLUP);
+
+  //Definindo BLE
+  BLEDevice::init("ESTER"); //Nome do BLE
+  pServer = BLEDevice::createServer(); //Criando Servidor
+  pServer->setCallbacks(new MyServerCallbacks());
+  BLEService *pService = pServer->createService(SERVICE_UUID); //Criando serviÃ§o
+  
+  pCharacteristic = pService->createCharacteristic(
+                      CHARACTERISTIC_UUID,
+                      BLECharacteristic::PROPERTY_READ   |
+                      BLECharacteristic::PROPERTY_WRITE  |
+                      BLECharacteristic::PROPERTY_NOTIFY |
+                      BLECharacteristic::PROPERTY_INDICATE
+                    );
+
+  //pCharacteristic->addDescriptor(new BLE2902());
+  pCharacteristic->setCallbacks(new MyCallbacks());
+  pCharacteristic->setValue("C");
+  pCharacteristic->addDescriptor(new BLE2902());
+  codigo_BLE = (char*)malloc(34 * sizeof(char));
+  strcpy(codigo_BLE, "0000");
+        
+  pCharacteristic_bs = pService->createCharacteristic(
+                         CHARACTERISTIC_BS_UUID,
+                         BLECharacteristic::PROPERTY_READ   |
+                         BLECharacteristic::PROPERTY_WRITE  |
+                         BLECharacteristic::PROPERTY_NOTIFY |
+                         BLECharacteristic::PROPERTY_INDICATE
+                       );
+
+  pCharacteristic_bs->setCallbacks(new MyCallbacks_bs());
+  pCharacteristic_bs->setValue("B");
+  pCharacteristic_bs->addDescriptor(new BLE2902());
+  codigo_BLE_bs = (char*)malloc(6 * sizeof(char));
+  strcpy(codigo_BLE_bs, "0000");
+
+  pCharacteristic_sc = pService->createCharacteristic(
+                         CHARACTERISTIC_SC_UUID,
+                         BLECharacteristic::PROPERTY_READ   |
+                         BLECharacteristic::PROPERTY_WRITE  |
+                         BLECharacteristic::PROPERTY_NOTIFY |
+                         BLECharacteristic::PROPERTY_INDICATE
+                       );
+
+  pCharacteristic_sc->setCallbacks(new MyCallbacks_sc());
+  pCharacteristic_sc->setValue("S");
+  pCharacteristic_sc->addDescriptor(new BLE2902());
+  codigo_BLE_sc = (char*)malloc(6 * sizeof(char));
+  strcpy(codigo_BLE_sc, "0000");
+  
+  pService->start();
+  pAdvertising = pServer->getAdvertising();
+  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->setScanResponse(false);
+  pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
+  pAdvertising->start();
+
+}
 
 void loop() {
   int estado_atual = 5;
@@ -896,38 +906,59 @@ void loop() {
 
   Serial.println("Conectando aos dispositivos via BLE");
   
-  while (conectado < 3) {
+  /*while (conectado < 3) {
     if(strcmp(codigo_BLE_sc,"S") == 0){
       conectado++;
       wifi_enviar_sc("S",1);
       strcpy(codigo_BLE_sc,"0000");
       Serial.println("Controlador SecundÃ¡rio Conectado");
+      pServer->startAdvertising();
       delay(100);
-    }else if(strcmp(codigo_BLE_bs,"B") == 0){
+    }
+    if(strcmp(codigo_BLE_bs,"B") == 0){
       conectado++;
-      wifi_enviar_bs("S",1);
+      wifi_enviar_bs("B",1);
       strcpy(codigo_BLE_bs,"0000");
       Serial.println("Base conectada");
+      pServer->startAdvertising();
       delay(100);
-    }else if(strcmp(codigo_BLE,"C") == 0){
+    }
+    if(strcmp(codigo_BLE,"C") == 0){
       conectado++;
       enviar_codigo("C");
       strcpy(codigo_BLE,"0000");
       Serial.println("Dispositivo Smartphone conectado");
+      //pServer->startAdvertising();
       delay(100);
     }
-    pServer->startAdvertising();
-  }
-  /*Serial.print("Conectar com a base\n");
+   // pServer->startAdvertising();
+  }*/
+  Serial.print("Conectar com a base\n");
   while (strcmp(wifi_receber_bs(1), "B") != 0) {
     wifi_enviar_bs("B",1);
     delay(250);
   }
   Serial.print("base conectada\n");
   
-  pServer->startAdvertising();*/
+  //pServer->startAdvertising();
 
+  Serial.print("Conectar com o secundário\n");
+  while (strcmp(wifi_receber_sc(1), "S") != 0) {
+    wifi_enviar_sc("S",1);
+    delay(250);
+  }
+  Serial.print("secundária conectada\n");
+  
+  //pServer->startAdvertising();
 
+  Serial.print("Conectar com o smartphone\n");
+  while (strcmp(receber_codigo(1), "C") != 0) {
+    enviar_codigo("C");
+    delay(250);
+  }
+  Serial.print("Conectado com o smartphone\n");
+  
+  //pServer->startAdvertising();
 
   while (comunicacao(0, 1, sequencia_padrao) == 0) {
     switch (estado_atual) {
@@ -963,4 +994,3 @@ void loop() {
 
 
 }
-
