@@ -1,14 +1,17 @@
-#include <MPU6050_tockn.h>
-#include <Wire.h>
-//#include <WiFi.h>
-
-MPU6050 mpu6050(Wire);
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-#define pi 3.14159265359
+#define LEDVermelho 13
+#define LEDLaranja 12
+#define LEDAmarelo 14
+#define LEDVerde 02
+#define LEDAzul 04
+
+#define ButtonVermelho 25
+#define ButtonLaranja 33
+#define ButtonAmarelo 32
+#define ButtonVerde 27
+#define ButtonAzul 26
 
 //BLE Client
 #include "BLEDevice.h"
@@ -19,7 +22,7 @@ char* codigo_BLE;
 // The remote service we wish to connect to.
 static BLEUUID serviceUUID("c96d9bcc-f3b8-442e-b634-d546e4835f64");
 // The characteristic of the remote service we are interested in.
-static BLEUUID    charUUID("44c6fe06-3860-4d90-903d-f665ec523e7a");
+static BLEUUID    charUUID("0fb8b636-c355-4269-9a7f-02011938cd1a");
 
 static boolean doConnect = false;
 static boolean connected = false;
@@ -120,169 +123,193 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
   } // onResult
 }; // MyAdvertisedDeviceCallbacks
 
-/************************************************************************
-*         FUNÇÕES DE LEITURA E PROCESSAMENTO DOS DADOS
-*************************************************************************/
-int** ler_sensor( int quantidade){
 
-    int** leitura_sensor;
-    int i;
-    //int amplitude = 3, offset = 70;
+int definir_botao(int escolha){
+  int porta = 0;
+  switch(escolha){
+    case 1:
+      porta = ButtonVermelho;
+      break;
+    case 2:
+      porta = ButtonLaranja;
+      break;
+    case 3:
+      porta = ButtonAmarelo;
+      break;
+    case 4:
+      porta = ButtonVerde;
+      break;
+    case 5:
+      porta = ButtonAzul;
+      break; 
+  }
 
-    leitura_sensor = (int**)malloc(3*sizeof(int*));
-    
-    leitura_sensor[0] = (int*) malloc(quantidade*sizeof(int));
-    leitura_sensor[1] = (int*) malloc(quantidade*sizeof(int));
-    leitura_sensor[2] = (int*) malloc(quantidade*sizeof(int));
-    
-    for(i = 0; i < quantidade; i++){
-      mpu6050.update();
-      leitura_sensor[0][i] = mpu6050.getAngleX();
-      leitura_sensor[1][i] = mpu6050.getAngleY();
-      leitura_sensor[2][i] = mpu6050.getAngleZ();
-
-      Serial.print(i);
-      Serial.print(" | angulo X : ");
-      Serial.println(leitura_sensor[0][i]);
-      
-      delay(100); 
-    }
-
-    return leitura_sensor;
-
+ return porta;
 }
 
-double* fft_emC(int* dados,int n){
+int definir_LED(int escolha){
+  int porta = 0;
+  switch(escolha){
+    case 1:
+      porta = LEDVermelho;
+      break;
+    case 2:
+      porta = LEDLaranja;
+      break;
+    case 3:
+      porta = LEDAmarelo;
+      break;
+    case 4:
+      porta = LEDVerde;
+      break;
+    case 5:
+      porta = LEDAzul;
+      break; 
+  }
 
-    //double* tempo=new double[n];//armazena as 200 amostras igualmente espaçadas
-
-    double tfr[n]; // armazena a parte real do sinal
-    double tfi[n]; // armazena a parte imaginária do sinal
-    double* tf_abs;
-
-    tf_abs = (double*)malloc((n/2+1)*sizeof(double));
-
-    for(int u=1;u<(n/2)+1;u++) {
-        tfr[u]=0;
-        tfi[u]=0;
-        for(int x=0;x<n;x++){
-            tfr[u]+=dados[x]*cos(6.2831853*u*(double)x/(double)n);
-            tfi[u]-=dados[x]*sin(6.2831853*u* (double)x/(double)n);
-        }
-        tfr[u]/=(double)n;
-        tfi[u]/=(double)n;
-
-        //printf("%d |   %.5lf  %.5lf\n",u,tfr[u],tfi[u]);
-    }
-
-    for(int x=0;x<(n/2+1);x++){
-        tf_abs[x] = sqrt(pow(tfr[x],2)+pow(tfi[x],2));
-        Serial.print(x);
-        Serial.print(" | FFT : ");
-        Serial.println(tf_abs[x]);
-    }
-
-    return tf_abs;
+ return porta;
 }
 
-int grau_tremor(int modo, double** fft_dado, int tamanho){
-
-    float alfa, beta;
-    double amplitude[3] = {0,0,0};
-    double amplitude_total = 0;
-    int grau=0;
-
-    switch(modo){
-    case 1: //Descanso
-        alfa = 0.588;
-        beta = -3.02;
-        break;
-    case 2: //Postura
-        alfa = 0.355;
-        beta = -2.74;
-        break;
-    case 3: //Nariz
-        alfa = 0.577;
-        beta = -2.24;
-        break;
-    }
-
-    for(int j = 0; j < 3; j++){
-      for(int i = 5; i < tamanho; i++)
-          if(amplitude[j]<fft_dado[j][i])
-              amplitude[j] = fft_dado[j][i];
-      amplitude[j] = 2*amplitude[j]; // em Graus
-      amplitude[j] = 1*sqrt(2*(1-cos(amplitude[j]/180*pi)));
-    }
-
-    amplitude_total = sqrt(pow(amplitude[0],2)+pow(amplitude[1],2)+pow(amplitude[2],2));
-    grau = (int)((log10(amplitude_total)-beta)/alfa);
-    
-    return grau;
-}
-
-int comunicacao_strap(int modo, int dado){
+int comunicacao_sec(int opcao, int escolha){
     int retorno;
-    switch(modo){
-    case 0: //Foi pedido leitura?
-        retorno = leitura();
+    switch(opcao){
+    case 0:
+        if(escolha == 0){
+            retorno = botao_ou_led();
+        }else if(escolha == 1){
+            Serial.print("O jogo foi finalizado? 0 - nao e 1 - sim\n");
+            ler_dado(&retorno);
+        }else{
+            Serial.print("Comando inválido\n");
+        }
         break;
-    case 1: //Qual modo?
-        retorno = modo_de_medicao();
+    case 1:
+        retorno = enviar_botao_ap(escolha);
         break;
     case 2:
-        enviar_grau(dado);
+        retorno = receber_led();
         break;
     default:
-        Serial.print("Comando invalido\n");
         break;
     }
 
     return retorno;
+
 }
 
+int ler_botoes(){
+    int i;
+    int botao, apertou = 0;
+    while(apertou == 0)
+        for (i = 0; i < 5 ; i++){
 
-/*************************************************************
- *                  FUNÇÕES DO WIFI
- *************************************************************/
- 
-int leitura(){ //0 - não será feito leitura e 1 sim
-  char codigo_a_enviar[4] = "AET";
-  char* codigo_recebido; 
+            //LER O BOTAO
+            apertou = not(digitalRead(definir_botao(i+1)));
+
+            while(digitalRead(definir_botao(i + 1)) == 0);
+
+            if(apertou == 1){
+                botao = i+1;
+
+                // ACENDE O LED
+                acender_leds(botao,50);
+
+                // ENVIA O DADO PARA A OUTRA ESFERA
+                comunicacao_sec(1,botao);
+
+                break;
+            }
+        }
+
+    return botao;
+}
+
+void acender_leds(int LED, int tempo){
+    int vetor_led[3] = {LED,tempo, 0};
+
+    //printf("LED %d aceso\n", LED);
+    digitalWrite(definir_LED(LED), HIGH);
+    delay_ms(tempo);
+    digitalWrite(definir_LED(LED),LOW);
+}
+
+void delay_ms(int tempo){
+  delay(tempo);
+}
+
+void ler_dado(int* retorno){
+  int dado_chegou = 0;
+  int dado = 0;
+  while(dado_chegou == 0 || dado < 48){
+    if(Serial.available() > 0){
+      dado_chegou = 1;
+      dado = int(Serial.read());
+      //Serial.println(dado);
+    }
+  }
+  dado = dado -48;
+  Serial.println(dado);
+  retorno[0] = dado;
+}
+
+/**************FUNCOES COMUNICAÇÃO SECUNDÁRIA***********************/
+
+//indica se um botão novo foi apertado 
+
+int botao_ou_led(){
+
+  char* cod_recebidow;
+  int retorno;
+
+    do{
+      cod_recebidow = receber_codigo(2);
+    }while(strcmp(cod_recebidow,"NV") != 0 && strcmp(cod_recebidow,"AL")!=0);
+    
+    if(strcmp(cod_recebidow,"NV") == 0)
+      retorno = 0;
+    else
+      retorno = 1;             
+  return retorno;
+  }
+  
+int enviar_botao_ap(int botao){
+
+  char* cod_recebidow ="QB";
+  char codigo_a_enviar[3] = "BX";
   int retorno;
   
-  do{
-    codigo_recebido = receber_codigo(2);
-  }while(strcmp(codigo_recebido,"IT")!=0);
+  cod_recebidow = receber_codigo(2);
+  while(cod_recebidow[0] != 'Q'){
+    enviar_codigo("XX",2);
+    cod_recebidow = receber_codigo(2);
+  }
 
-  enviar_codigo("AET",3);
-
-  return 1;  
-}
-int modo_de_medicao(){ // retorna o modo de operação
-  char* codigo_recebido; 
-  int retorno;
-  
-  do{
-    codigo_recebido = receber_codigo(3);
-  }while(codigo_recebido[0] != 'T');
-
-  retorno = (int)codigo_recebido[2] - '0';
-
-  return retorno;  
-}
-
-int enviar_grau(int grau){ //envia o grau de tremor
-  char codigo_a_enviar[3] = "GX";
-
-  codigo_a_enviar[1] = grau + '0';
+  codigo_a_enviar[1] = botao + '0';
   
   enviar_codigo(codigo_a_enviar,2);
+        
+  return 0;
+  
+  }
+int receber_led(){
 
-  return 0;  
-}
+  char* cod_recebidow;
+  char codigo_enviar[3] = "QL";
 
-//FUNÇÃO PARA ENVIAR CÓDIGO CHAR* PARA O CELULAR VIA BLE
+  cod_recebidow = receber_codigo(2);
+
+  while(cod_recebidow[0] != 'L'){
+     enviar_codigo("RR",2);
+     cod_recebidow = receber_codigo(2);
+    }
+  enviar_codigo("QL",2);
+  
+  int led = (int)cod_recebidow[1] - '0';
+     
+  return led;
+  }
+
+  //FUNÇÃO PARA ENVIAR CÓDIGO CHAR* PARA O CELULAR VIA BLE
 void enviar_codigo(char* vetor, int tamanho){
 
   while(!pRemoteCharacteristic->canWrite());
@@ -323,18 +350,16 @@ char* receber_codigo(int tamanho){
  return codigo_char;
 }
 
-/***************************************************************/
-
+/**************FUNCAO PRINCIPAL***********************/
 void setup() {
-  Serial.begin(115200);
-  
-  Wire.begin(5, 18);
-  mpu6050.begin();
-  //mpu6050.calcGyroOffsets(true);
-
-  //BLE Client
+  Serial.begin(115200); 
+  for (int contador = 1; contador <= 5; contador++)
+    pinMode(definir_LED(contador), OUTPUT);
+  for (int contador = 1; contador <= 5; contador++)
+    pinMode(definir_botao(contador), INPUT_PULLUP);
+    
   Serial.println("Starting BLE Client application...");
-  BLEDevice::init("Base ESTER");
+  BLEDevice::init("Secundario ESTER");
 
   delay(5000);
     
@@ -350,34 +375,39 @@ void setup() {
 }
 
 void loop() {
-  int quant_dados = 100, grau, modo;
-  int** dados_sensor;
-  int*dados_sensor_crr;
-  double* fft_dados_sensor[3];
-  
+    int estado_atual = 0;
+    int proximo_estado = 0;
+    int led_ou_botao = 0; //0 - LED  1 - Botao
+    int botao;
+
   //COnectar a principal
   Serial.print("Conectar com o controlador principal... ");
   while(!connectToServer());
   do{
-    enviar_codigo("B",1);
+    enviar_codigo("S",1);
     delay(250);
-  }while(strcmp(receber_codigo(1),"B") != 0);
+  }while(strcmp(receber_codigo(1),"S") != 0);
   Serial.print("Conectado.\n");
   
   while(1){
-      if(comunicacao_strap(0,0) == 1){ 
-          dados_sensor = ler_sensor(quant_dados);
-          //dados_sensor_crr = ajuste_media(dados_sensor, quant_dados);
-          fft_dados_sensor[0] = fft_emC(dados_sensor[0], quant_dados);
-          fft_dados_sensor[1] = fft_emC(dados_sensor[1], quant_dados);
-          fft_dados_sensor[2] = fft_emC(dados_sensor[2], quant_dados);
-          modo = comunicacao_strap(1,0); 
-          
-          grau = grau_tremor(modo,fft_dados_sensor,quant_dados/2+1);
-          comunicacao_strap(2,grau);
-
-          
+      switch(estado_atual){
+      case 0:
+          led_ou_botao = comunicacao_sec(0,0);
+          proximo_estado = led_ou_botao+1;
+          break;
+      case 1:
+          botao = ler_botoes();
+          //comunicacao_sec(1,botao);
+          proximo_estado = 0;
+          break;
+      case 2:
+          acender_leds(comunicacao_sec(2,0),333);
+          proximo_estado = 0;
+          break;
+      default:
+          break;
       }
-      delay(500);
+      estado_atual = proximo_estado;
+      //delay(250);
   }
 }

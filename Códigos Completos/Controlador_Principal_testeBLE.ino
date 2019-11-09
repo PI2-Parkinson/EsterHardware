@@ -13,7 +13,7 @@
 //#include <WiFi.h>
 
 //ENTRADAS E SAIDAS
-//LEDs e botões
+//LEDs e botÃµes
 #define LEDVermelho 13
 #define LEDLaranja 12
 #define LEDAmarelo 14
@@ -30,6 +30,7 @@
 #define SERVICE_UUID        "c96d9bcc-f3b8-442e-b634-d546e4835f64"
 #define CHARACTERISTIC_UUID "807b8bad-a892-4ff7-b8bc-83a644742f9b"
 #define CHARACTERISTIC_BS_UUID "44c6fe06-3860-4d90-903d-f665ec523e7a"
+#define CHARACTERISTIC_SC_UUID "0fb8b636-c355-4269-9a7f-02011938cd1a"
 #define NOTIFICATION_UUID     0x2A08
 
 BLEServer* pServer = NULL;
@@ -37,6 +38,7 @@ BLEAdvertising* pAdvertising = NULL;
 BLEService *pService = NULL;
 BLECharacteristic* pCharacteristic = NULL;
 BLECharacteristic* pCharacteristic_bs = NULL;
+BLECharacteristic* pCharacteristic_sc = NULL;
 
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
@@ -44,6 +46,7 @@ uint32_t value = 0;
 
 char* codigo_BLE;
 char* codigo_BLE_bs;
+char* codigo_BLE_sc;
 
 int sequencia_padrao[6] = {1, 2, 3, 4, 5, 0};
 
@@ -64,6 +67,15 @@ class MyCallbacks_bs: public BLECharacteristicCallbacks {
     }
 };
 
+class MyCallbacks_sc: public BLECharacteristicCallbacks {
+      void onWrite(BLECharacteristic *pCharacteristic_sc) {
+      std::string value = pCharacteristic_sc->getValue();
+
+      strcpy(codigo_BLE_sc, value.c_str());
+      //Serial.println(codigo_BLE_sc);
+    }
+};
+
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
@@ -77,7 +89,7 @@ class MyServerCallbacks: public BLEServerCallbacks {
 
 void setup() {
 
-  //Definindo LEDS e Botões
+  //Definindo LEDS e BotÃµes
   Serial.begin(115200);
   for (int contador = 1; contador <= 5; contador++)
     pinMode(definir_LED(contador), OUTPUT);
@@ -87,7 +99,8 @@ void setup() {
   //Definindo BLE
   BLEDevice::init("ESTER"); //Nome do BLE
   pServer = BLEDevice::createServer(); //Criando Servidor
-  BLEService *pService = pServer->createService(SERVICE_UUID); //Criando serviço
+  pServer->setCallbacks(new MyServerCallbacks());
+  BLEService *pService = pServer->createService(SERVICE_UUID); //Criando serviÃ§o
   
   pCharacteristic = pService->createCharacteristic(
                       CHARACTERISTIC_UUID,
@@ -101,7 +114,6 @@ void setup() {
   pCharacteristic->setCallbacks(new MyCallbacks());
   pCharacteristic->setValue("C");
   pCharacteristic->addDescriptor(new BLE2902());
-  
   codigo_BLE = (char*)malloc(34 * sizeof(char));
   strcpy(codigo_BLE, "0000");
         
@@ -116,6 +128,22 @@ void setup() {
   pCharacteristic_bs->setCallbacks(new MyCallbacks_bs());
   pCharacteristic_bs->setValue("B");
   pCharacteristic_bs->addDescriptor(new BLE2902());
+  codigo_BLE_bs = (char*)malloc(6 * sizeof(char));
+  strcpy(codigo_BLE_bs, "0000");
+
+  pCharacteristic_sc = pService->createCharacteristic(
+                         CHARACTERISTIC_SC_UUID,
+                         BLECharacteristic::PROPERTY_READ   |
+                         BLECharacteristic::PROPERTY_WRITE  |
+                         BLECharacteristic::PROPERTY_NOTIFY |
+                         BLECharacteristic::PROPERTY_INDICATE
+                       );
+
+  pCharacteristic_sc->setCallbacks(new MyCallbacks_sc());
+  pCharacteristic_sc->setValue("S");
+  pCharacteristic_sc->addDescriptor(new BLE2902());
+  codigo_BLE_sc = (char*)malloc(6 * sizeof(char));
+  strcpy(codigo_BLE_sc, "0000");
   
   pService->start();
   pAdvertising = pServer->getAdvertising();
@@ -123,25 +151,12 @@ void setup() {
   pAdvertising->setScanResponse(false);
   pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
   pAdvertising->start();
-  codigo_BLE_bs = (char*)malloc(6 * sizeof(char));
-  strcpy(codigo_BLE_bs, "0000");
 
-  //Configurando Wifi
-  /*WiFi.mode(WIFI_AP);
-    WiFi.softAP("Ester_AP", "Ester_comm");
-    WiFi.softAPConfig(IP, IP, mask);
-    server.begin();
-
-    Serial.println();
-    Serial.println("AP_1.ino");
-    Serial.println("Server started.");
-    Serial.print("IP: ");     Serial.println(WiFi.softAPIP());
-    Serial.print("MAC:");     Serial.println(WiFi.softAPmacAddress());*/
 }
 
 
 /*******************************************************************
-                        FUNÇÕES PRINCIPAIS
+                        FUNÃ‡Ã•ES PRINCIPAIS
                       DO CONTROLADOR PRINCIPAL
  ******************************************************************/
 int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados) {
@@ -161,7 +176,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados) {
           break;
       }
       break;
-    case 1: // exercício 1
+    case 1: // exercÃ­cio 1
       switch (escolha) {
         case 1:
           retorno = botao_parar_apertado();
@@ -190,7 +205,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados) {
           break;
       }
       break;
-    case 2: // exercício 2
+    case 2: // exercÃ­cio 2
       switch (escolha) {
         case 1:
           retorno = botao_parar_apertado();
@@ -219,7 +234,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados) {
           break;
       }
       break;
-    case 3: // exercício 3
+    case 3: // exercÃ­cio 3
       switch (escolha) {
         case 0:
           retorno = exercicio3_finalizado();
@@ -233,15 +248,15 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados) {
         case 0:
           retorno = receber_modo_grau();
           retorno = bs_receber_grau_tremor(retorno);
-          //Receber da base o grau, no caso aqui é 3
-          retorno = enviar_grau_tremor(retorno); //ADICIONAR FUNÇÃO QUE RECEBE O GRAU NO LUGAR DO 3
+          //Receber da base o grau, no caso aqui Ã© 3
+          retorno = enviar_grau_tremor(retorno); //ADICIONAR FUNÃ‡ÃƒO QUE RECEBE O GRAU NO LUGAR DO 3
           break;
         default:
           Serial.print("Comando invalido!\n");
           break;
       }
       break;
-    case 5: // Leitura dos botões da esf secundaria
+    case 5: // Leitura dos botÃµes da esf secundaria
       switch (escolha) {
         case 0:
           retorno = sec_ler_botoes();
@@ -270,7 +285,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados) {
   return retorno;
 }
 
-/********* EXERCÍCIOS ************/
+/********* EXERCÃ�CIOS ************/
 void exercicio1() {
   //INICIO
   int semente_rand = time(NULL);
@@ -280,19 +295,19 @@ void exercicio1() {
   int sequencia[32] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int deseja_continuar = 1;
 
-  //DEMONSTRAÇÃO
+  //DEMONSTRAÃ‡ÃƒO
   comunicacao(1, 5, sequencia_padrao);
 
   for (i = 0; i < 5; i++) {
     acender_leds(i + 1, 333);
   }
 
-  //RECEBE NÍVEL
+  //RECEBE NÃ�VEL
   nivel = comunicacao(1, 3, sequencia_padrao);
 
   for (count = nivel; count < 32 && deseja_continuar == 1; count++)
   {
-    //GERA SEQUÊNCIA ALEATÓRIA
+    //GERA SEQUÃŠNCIA ALEATÃ“RIA
     srand(semente_rand);
     if (count == nivel)
       for (j = 0; j < count; j++)
@@ -300,10 +315,10 @@ void exercicio1() {
     else
       sequencia[count - 1] = printRandoms(lower, upper, count);
 
-    //MANDA SEQUÊNCIA
+    //MANDA SEQUÃŠNCIA
     comunicacao(1, 5, sequencia);
 
-    //LER BOTÕES E ACENDE LEDS
+    //LER BOTÃ•ES E ACENDE LEDS
     if (ler_botoes(count, sequencia) == 1) {
 
       //ERROU, DESEJA CONTINUAR?
@@ -319,7 +334,7 @@ void exercicio1() {
     }
   }
 
-  //MANDA NÍVEL
+  //MANDA NÃ�VEL
   nivel = count;
   comunicacao(1, 4, &nivel);
 
@@ -333,7 +348,7 @@ void exercicio2() {
   int sequencia[32] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int deseja_continuar = 1;
 
-  //DEMONSTRAÇÃO
+  //DEMONSTRAÃ‡ÃƒO
   comunicacao(2, 5, sequencia_padrao);
 
   //ACENDE LEDS DA SEQUENCIA
@@ -341,13 +356,13 @@ void exercicio2() {
       acender_leds(i+1,333);
     }*/
 
-  //RECEBE NÍVEL
+  //RECEBE NÃ�VEL
   nivel = comunicacao(2, 3, sequencia_padrao);
 
   for (count = nivel; count < 32 && deseja_continuar == 1; count++)
   {
 
-    //GERA SEQUÊNCIA ALEATÓRIA
+    //GERA SEQUÃŠNCIA ALEATÃ“RIA
     srand(semente_rand);
     if (count == nivel)
       for (j = 0; j < count; j++)
@@ -355,7 +370,7 @@ void exercicio2() {
     else
       sequencia[count - 1] = printRandoms(lower, upper, count);
 
-    //MANDA SEQUÊNCIA
+    //MANDA SEQUÃŠNCIA
     comunicacao(2, 5, sequencia);
 
     //ACENDE LEDS DA SEQUENCIA
@@ -365,7 +380,7 @@ void exercicio2() {
         i++;
       }*/
 
-    //LER BOTÕES E ACENDE LEDS
+    //LER BOTÃ•ES E ACENDE LEDS
     if (ler_botoes(count, sequencia) == 1) {
 
       //ERROU, DESEJA CONTINUAR?
@@ -381,7 +396,7 @@ void exercicio2() {
     }
   }
 
-  //MANDA NÍVEL
+  //MANDA NÃ�VEL
   nivel = count;
   comunicacao(2, 4, &nivel);
 
@@ -394,7 +409,7 @@ void pulseira() {
 }
 
 
-/***** BOTÕES E LEDS ************/
+/***** BOTÃ•ES E LEDS ************/
 int ler_botoes(int nivel, int* sequencia) {
   Serial.print("Digite a seq de botoes\n");
   int botao, botao_sec, apertou = 0;
@@ -405,8 +420,8 @@ int ler_botoes(int nivel, int* sequencia) {
 
   // LER CADA BOTAO E VERIFICA SE ERROU
   while (cont < nivel) {
-    //FALAR QUE É PARA LER BOTÕES DA SECUNDARIA
-    //comunicacao(5,0, sequencia_padrão);
+    //FALAR QUE Ã‰ PARA LER BOTÃ•ES DA SECUNDARIA
+    //comunicacao(5,0, sequencia_padrÃ£o);
 
     // VERIFICAR TODOS OS CINCO BOTOES
     for (i = 0; i < 5 ; i++) {
@@ -444,11 +459,12 @@ void acender_leds(int LED, int tempo) {
   int vetor_led[3] = {LED, tempo, 0};
 
   //printf("LED %d aceso\n", LED);
+  if (tempo == 333)
+    comunicacao(6, 1, vetor_led);
   digitalWrite(definir_LED(LED), HIGH);
   delay_ms(tempo);
   digitalWrite(definir_LED(LED), LOW);
-  if (tempo == 333)
-    comunicacao(6, 1, vetor_led);
+  delay_ms(10);
 }
 
 int printRandoms(int lower, int upper, int count) {
@@ -511,10 +527,10 @@ int definir_LED(int escolha) {
 
 
 /*******************************************************************
-                 FUNÇÕES DA COMUNICAÇÃO ENTRE
+                 FUNÃ‡Ã•ES DA COMUNICAÃ‡ÃƒO ENTRE
               CONTROLADOR PRINCIPAL E SMARTPHONE
  ******************************************************************/
-//DEFINIR QUAL MODO - 1, 2, 3 - exercícios 1, 2, 3; 4 - strap
+//DEFINIR QUAL MODO - 1, 2, 3 - exercÃ­cios 1, 2, 3; 4 - strap
 int definir_modo_op() {
 
   String recebido_ble;
@@ -534,8 +550,8 @@ int definir_modo_op() {
 
 }
 
-//O BOTÃO DE PARAR NO MEIO DO JOGO FOI APERTADO?
-int botao_parar_apertado( ) { // 0 Não apertou | 1 Apertou
+//O BOTÃƒO DE PARAR NO MEIO DO JOGO FOI APERTADO?
+int botao_parar_apertado( ) { // 0 NÃ£o apertou | 1 Apertou
 
   int apertou = 0;
   char* codigo_recebido = "PX";
@@ -547,11 +563,11 @@ int botao_parar_apertado( ) { // 0 Não apertou | 1 Apertou
 
   apertou = (int)codigo_recebido[1] - 48;
 
-  return apertou; //0 Não apertou | 1 Apertou
+  return apertou; //0 NÃ£o apertou | 1 Apertou
 }
 
-//O USUÁRIO ERROU A SEQUENCIA, ELE QUER CONTINUAR?
-int errou_sequencia( ) { //0 Não quer continuar | 1 Continuar nivel 0
+//O USUÃ�RIO ERROU A SEQUENCIA, ELE QUER CONTINUAR?
+int errou_sequencia( ) { //0 NÃ£o quer continuar | 1 Continuar nivel 0
   String recebido_ble;
   int quer_continuar = 0;
   char* codigo_recebido = "C0";
@@ -563,10 +579,10 @@ int errou_sequencia( ) { //0 Não quer continuar | 1 Continuar nivel 0
 
   quer_continuar = (int)codigo_recebido[1] - 48;
 
-  return quer_continuar; //0 Não quer continuar | 1 Continuar nivel 0
+  return quer_continuar; //0 NÃ£o quer continuar | 1 Continuar nivel 0
 }
 
-//QUAL FOI O NÍVEL SALVO NO APLICATIVO?
+//QUAL FOI O NÃ�VEL SALVO NO APLICATIVO?
 int qual_nivel(int exercicio) {
 
   int nivel = 0;
@@ -588,7 +604,7 @@ int qual_nivel(int exercicio) {
   return nivel;
 }
 
-//JOGO FINALIZADO, ENVIAR O NÍVEL PARA O APLICATIVO
+//JOGO FINALIZADO, ENVIAR O NÃ�VEL PARA O APLICATIVO
 int enviar_nivel(int nivel, int exercicio) {
 
   char* codigo_recebido;
@@ -638,7 +654,7 @@ int finalizou_sequencia() {
   return 0;
 }
 
-//SABER SE O EXERCÍCIO 3 FOI FINALIZADO
+//SABER SE O EXERCÃ�CIO 3 FOI FINALIZADO
 int exercicio3_finalizado( ) {
 
   char* codigo_recebido;
@@ -685,7 +701,7 @@ int enviar_grau_tremor(int grau_tremor) {
   return 0;
 }
 
-//FUNÇÃO PARA ENVIAR CÓDIGO CHAR* PARA O CELULAR VIA BLE
+//FUNÃ‡ÃƒO PARA ENVIAR CÃ“DIGO CHAR* PARA O CELULAR VIA BLE
 void enviar_codigo(char* vetor) {
 
   pCharacteristic->setValue(vetor);
@@ -694,7 +710,7 @@ void enviar_codigo(char* vetor) {
   Serial.print("'\n");
 }
 
-//FUNÇÃO PARA RECEBER CÓDIGO CHAR* PARA O CELULAR VIA BLE
+//FUNÃ‡ÃƒO PARA RECEBER CÃ“DIGO CHAR* PARA O CELULAR VIA BLE
 char* receber_codigo(int tamanho) {
 
   char* codigo_char = (char*)malloc((tamanho + 1) * sizeof(char));
@@ -718,7 +734,7 @@ char* receber_codigo(int tamanho) {
 /*******************************************************************/
 
 /*******************************************************************
-                    FUNÇÕES DA COMUNICAÇÃO ENTRE
+                    FUNÃ‡Ã•ES DA COMUNICAÃ‡ÃƒO ENTRE
                     CONTROLADOR PRINCIPAL E BASE
  ******************************************************************/
 
@@ -781,10 +797,10 @@ int wifi_enviar_bs(char* string, int tamanho) {
 
 /******************************************************************/
 /*******************************************************************
-                        FUNÇÕES DA COMUNICAÇÃO ENTRE
+                        FUNÃ‡Ã•ES DA COMUNICAÃ‡ÃƒO ENTRE
                     CONTROLADOR PRINCIPAL E SECUNDARIO
  ******************************************************************/
-//Novo botão 0-não apertado 1-apertado
+//Novo botÃ£o 0-nÃ£o apertado 1-apertado
 int sec_ler_botoes() {
 
   wifi_enviar_sc("NV", 2);
@@ -792,7 +808,7 @@ int sec_ler_botoes() {
   return 0;
 }
 
-//qual botão 1 a 5
+//qual botÃ£o 1 a 5
 int sec_botao_ap() {
 
   int botao = 0;
@@ -801,7 +817,7 @@ int sec_botao_ap() {
   do {
     //enviar_secundario("QB");
     wifi_enviar_sc("QB", 2);
-    cod_recebidow = wifi_receber_sc();
+    cod_recebidow = wifi_receber_sc(2);
   } while (cod_recebidow[0] != 'B');
 
   botao = (int)cod_recebidow[1] - 48; // virou inteiro
@@ -809,7 +825,7 @@ int sec_botao_ap() {
   return botao;
 }
 
-//aviso que led vai acender - 0 não vai 1 vai
+//aviso que led vai acender - 0 nÃ£o vai 1 vai
 int sec_led_acender() {
 
   wifi_enviar_sc("AL", 2);
@@ -823,44 +839,47 @@ int sec_led_on(int led) {
   char* cod_recebidow;
   char codigo_enviar[3] = "LX";
 
-
+  Serial.println("entrou no sec_led_on"); 
   do {
     codigo_enviar[1] = led + '0';
     //enviar_secundario(codigo_enviar);
     wifi_enviar_sc(codigo_enviar, 2);
-    cod_recebidow = wifi_receber_sc();
+    cod_recebidow = wifi_receber_sc(2);
   } while (strcmp(cod_recebidow, "QL") != 0);
 
 
   return 0;
 }
 
-char* wifi_receber_sc( ) {
-  char* strc;
-  /*String str = client.readStringUntil('\r');
-    client.flush();
-    strcpy(strc,str.c_str());*/
-  strc = (char*)malloc(6 * sizeof(char));
-  int i = 0;
+char* wifi_receber_sc(int tamanho ) {
+  
+  char* codigo_char = (char*)malloc((tamanho + 1) * sizeof(char));
 
-  while (Serial.available() == 0);
-  while (Serial.available() > 0) {
-    strc[i] = Serial.read();
-    i++;
-  }
-  strc[i - 1] = '\0';
+  while (strcmp(codigo_BLE_sc, "0000") == 0)
+    delay(5);
+  /*Serial.print("1.1 Recebou da base via wifi:'");
+  Serial.print(codigo_BLE_bs);
+  Serial.print("'");*/
+  strcpy(codigo_char,codigo_BLE_sc);
+  codigo_char[tamanho] = '\0';
 
-  Serial.print("Recebou da base via wifi:'");
-  Serial.print(strc);
+  strcpy(codigo_BLE_sc, "0000");
+
+  Serial.print("Recebou do secundario via wifi:'");
+  Serial.print(codigo_char);
   Serial.print("'\n");
 
-  return strc;
+  return codigo_char;
 }
 int wifi_enviar_sc(char* string, int tamanho) {
-  /*client.flush();
-    client.print( String(string) + "\r");*/
 
-  Serial.print("Enviou para a base via wifi:'");
+  /*while (strcmp(wifi_receber_sc(2), "XX") != 0)
+    delay(100);*/
+  pCharacteristic_sc->setValue(string);
+  while (strcmp(wifi_receber_sc(tamanho), string) != 0);
+
+  pCharacteristic_sc->setValue("0000");
+  Serial.print("Enviou para o secundario via wifi:'");
   Serial.print(string);
   Serial.print("'\n");
 
@@ -873,22 +892,41 @@ void loop() {
   int estado_atual = 5;
   int proximo_estado = 0;
   int modo = 0;
+  int conectado = 0;
 
-  Serial.print("Conectar com a base\n");
+  Serial.println("Conectando aos dispositivos via BLE");
+  
+  while (conectado < 3) {
+    if(strcmp(codigo_BLE_sc,"S") == 0){
+      conectado++;
+      wifi_enviar_sc("S",1);
+      strcpy(codigo_BLE_sc,"0000");
+      Serial.println("Controlador SecundÃ¡rio Conectado");
+      delay(100);
+    }else if(strcmp(codigo_BLE_bs,"B") == 0){
+      conectado++;
+      wifi_enviar_bs("S",1);
+      strcpy(codigo_BLE_bs,"0000");
+      Serial.println("Base conectada");
+      delay(100);
+    }else if(strcmp(codigo_BLE,"C") == 0){
+      conectado++;
+      enviar_codigo("C");
+      strcpy(codigo_BLE,"0000");
+      Serial.println("Dispositivo Smartphone conectado");
+      delay(100);
+    }
+    pServer->startAdvertising();
+  }
+  /*Serial.print("Conectar com a base\n");
   while (strcmp(wifi_receber_bs(1), "B") != 0) {
     wifi_enviar_bs("B",1);
     delay(250);
   }
   Serial.print("base conectada\n");
   
-  pServer->startAdvertising();
-  
-  Serial.print("Conectar com o bluetooth\n");
-  while (strcmp(receber_codigo(1), "C") != 0) {
-    enviar_codigo("C");
-    delay(250);
-  }
-  Serial.print("bluetooth conectado\n");
+  pServer->startAdvertising();*/
+
 
 
   while (comunicacao(0, 1, sequencia_padrao) == 0) {
@@ -925,3 +963,4 @@ void loop() {
 
 
 }
+
