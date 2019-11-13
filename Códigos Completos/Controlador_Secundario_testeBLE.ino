@@ -361,7 +361,7 @@ void setup() {
   Serial.println("Starting BLE Client application...");
   BLEDevice::init("Secundario ESTER");
 
-  delay(5000);
+  delay(1000);
     
   BLEScan* pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
