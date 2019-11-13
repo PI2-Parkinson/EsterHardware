@@ -145,7 +145,7 @@ int** ler_sensor( int quantidade){
       Serial.print(" | angulo X : ");
       Serial.println(leitura_sensor[0][i]);
       
-      delay(100); 
+      delay(25); 
     }
 
     return leitura_sensor;
@@ -156,8 +156,8 @@ double* fft_emC(int* dados,int n){
 
     //double* tempo=new double[n];//armazena as 200 amostras igualmente espaçadas
 
-    double tfr[n]; // armazena a parte real do sinal
-    double tfi[n]; // armazena a parte imaginária do sinal
+    long double tfr[n]; // armazena a parte real do sinal
+    long double tfi[n]; // armazena a parte imaginária do sinal
     double* tf_abs;
 
     tf_abs = (double*)malloc((n/2+1)*sizeof(double));
@@ -166,11 +166,11 @@ double* fft_emC(int* dados,int n){
         tfr[u]=0;
         tfi[u]=0;
         for(int x=0;x<n;x++){
-            tfr[u]+=dados[x]*cos(6.2831853*u*(double)x/(double)n);
-            tfi[u]-=dados[x]*sin(6.2831853*u* (double)x/(double)n);
+            tfr[u]+=(long double)dados[x]*cos(6.2831853*u*(double)x/(double)n);
+            tfi[u]-=(long double)dados[x]*sin(6.2831853*u* (double)x/(double)n);
         }
-        tfr[u]/=(double)n;
-        tfi[u]/=(double)n;
+        tfr[u]/=(long double)n;
+        tfi[u]/=(long double)n;
 
         //printf("%d |   %.5lf  %.5lf\n",u,tfr[u],tfi[u]);
     }
@@ -208,7 +208,7 @@ int grau_tremor(int modo, double** fft_dado, int tamanho){
     }
 
     for(int j = 0; j < 3; j++){
-      for(int i = 5; i < tamanho; i++)
+      for(int i = 10; i < tamanho; i++)
           if(amplitude[j]<fft_dado[j][i])
               amplitude[j] = fft_dado[j][i];
       amplitude[j] = 2*amplitude[j]; // em Graus
@@ -336,7 +336,7 @@ void setup() {
   Serial.println("Starting BLE Client application...");
   BLEDevice::init("Base ESTER");
 
-  delay(5000);
+  delay(3000);
     
   BLEScan* pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
@@ -350,7 +350,7 @@ void setup() {
 }
 
 void loop() {
-  int quant_dados = 100, grau, modo;
+  int quant_dados = 1000, grau, modo;
   int** dados_sensor;
   int*dados_sensor_crr;
   double* fft_dados_sensor[3];
