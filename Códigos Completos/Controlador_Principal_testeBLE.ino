@@ -80,9 +80,9 @@ class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
       //BLEDevice::startAdvertising();
-      delay(500);
+      delay(1000);
       pServer->startAdvertising();
-      Serial.println("entrou nessa condição: onConnect");
+      //Serial.println("entrou nessa condição: onConnect");
     };
 
     void onDisconnect(BLEServer* pServer) {
@@ -357,9 +357,12 @@ int ler_botoes(int nivel, int* sequencia) {
   int errou = 0;
   int i, cont = 0;
   int porta = 0;
+  unsigned long tempo_inicial = 0;
+  unsigned long tempo_atual = millis();
 
   // LER CADA BOTAO E VERIFICA SE ERROU
-  while (cont < nivel) {
+  tempo_inicial = tempo_atual;
+  while (cont < nivel && (tempo_atual - tempo_inicial) < (nivel*1000+2000)) {
     //FALAR QUE É PARA LER BOTOES DA SECUNDARIA
     if(apertou == 1)
       comunicacao(5,0, sequencia_padrao);
@@ -903,36 +906,20 @@ void loop() {
   int proximo_estado = 0;
   int modo = 0;
   int conectado = 0;
+  int sequencia_inv = {5, 4, 3, 2, 1, 0};
 
   Serial.println("Conectando aos dispositivos via BLE");
   
-  /*while (conectado < 3) {
-    if(strcmp(codigo_BLE_sc,"S") == 0){
-      conectado++;
-      wifi_enviar_sc("S",1);
-      strcpy(codigo_BLE_sc,"0000");
-      Serial.println("Controlador SecundÃ¡rio Conectado");
-      pServer->startAdvertising();
-      delay(100);
-    }
-    if(strcmp(codigo_BLE_bs,"B") == 0){
-      conectado++;
-      wifi_enviar_bs("B",1);
-      strcpy(codigo_BLE_bs,"0000");
-      Serial.println("Base conectada");
-      pServer->startAdvertising();
-      delay(100);
-    }
-    if(strcmp(codigo_BLE,"C") == 0){
-      conectado++;
-      enviar_codigo("C");
-      strcpy(codigo_BLE,"0000");
-      Serial.println("Dispositivo Smartphone conectado");
-      //pServer->startAdvertising();
-      delay(100);
-    }
-   // pServer->startAdvertising();
-  }*/
+  Serial.print("Conectar com o secundário\n");
+  while (strcmp(wifi_receber_sc(1), "S") != 0) {
+    wifi_enviar_sc("S",1);
+    delay(250);
+  }
+  Serial.print("secundária conectada\n");
+
+  comunicacao(1, 5, sequencia_padrao);
+  comunicacao(1, 5, sequencia_inv);
+  
   Serial.print("Conectar com a base\n");
   while (strcmp(wifi_receber_bs(1), "B") != 0) {
     wifi_enviar_bs("B",1);
@@ -940,17 +927,6 @@ void loop() {
   }
   Serial.print("base conectada\n");
   
-  //pServer->startAdvertising();
-
-  Serial.print("Conectar com o secundário\n");
-  while (strcmp(wifi_receber_sc(1), "S") != 0) {
-    wifi_enviar_sc("S",1);
-    delay(250);
-  }
-  Serial.print("secundária conectada\n");
-  
-  //pServer->startAdvertising();
-
   Serial.print("Conectar com o smartphone\n");
   while (strcmp(receber_codigo(1), "C") != 0) {
     enviar_codigo("C");
@@ -958,7 +934,6 @@ void loop() {
   }
   Serial.print("Conectado com o smartphone\n");
   
-  //pServer->startAdvertising();
 
   while (comunicacao(0, 1, sequencia_padrao) == 0) {
     switch (estado_atual) {
