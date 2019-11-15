@@ -314,7 +314,7 @@ int receber_led(){
 int acendertodos(){
 
   int tempo=0;
-  char cod_recebido;
+  char* cod_recebido;
   cod_recebido = receber_codigo(5);
   
   while(cod_recebido[0] != 'T'){
@@ -394,6 +394,7 @@ void loop() {
     int proximo_estado = 0;
     int led_ou_botao = 0; //0 - LED  1 - Botao
     int botao;
+    int tempo;
 
   //COnectar a principal
   Serial.print("Conectar com o controlador principal... ");
@@ -420,7 +421,7 @@ void loop() {
           proximo_estado = 0;
           break;
       case 3:
-          int tempo = acendertodos();
+          tempo = acendertodos();
           digitalWrite(definir_LED(1), HIGH);
           digitalWrite(definir_LED(2), HIGH);
           digitalWrite(definir_LED(3), HIGH);
@@ -432,6 +433,7 @@ void loop() {
           digitalWrite(definir_LED(3), LOW);
           digitalWrite(definir_LED(4), LOW);
           digitalWrite(definir_LED(5), LOW);
+          break;
       default:
           break;
       }
