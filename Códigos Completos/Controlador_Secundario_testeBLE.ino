@@ -4,14 +4,14 @@
 #define LEDVermelho 13
 #define LEDLaranja 12
 #define LEDAmarelo 14
-#define LEDVerde 02
-#define LEDAzul 04
+#define LEDVerde 26
+#define LEDAzul 25
 
-#define ButtonVermelho 25
-#define ButtonLaranja 33
-#define ButtonAmarelo 32
-#define ButtonVerde 27
-#define ButtonAzul 26
+#define ButtonVermelho 17
+#define ButtonLaranja 05
+#define ButtonAmarelo 18
+#define ButtonVerde 19
+#define ButtonAzul 21
 
 //BLE Client
 #include "BLEDevice.h"
