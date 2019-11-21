@@ -433,6 +433,7 @@ void loop() {
           digitalWrite(definir_LED(3), LOW);
           digitalWrite(definir_LED(4), LOW);
           digitalWrite(definir_LED(5), LOW);
+          proximo_estado = 0;
           break;
       default:
           break;
