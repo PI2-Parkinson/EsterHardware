@@ -463,7 +463,8 @@ void loop() {
           delay(tempo);
           digitalWrite(definir_LED(2), LOW);
           digitalWrite(definir_LED(4), LOW);   
-          proximo_estado = 0;                 
+          proximo_estado = 0;      
+          break;           
       default:
           break;
       }
