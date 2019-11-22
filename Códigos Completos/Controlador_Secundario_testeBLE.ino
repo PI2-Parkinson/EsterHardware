@@ -1,17 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define LEDVermelho 13
-#define LEDLaranja 12
+#define LEDVermelho 25
+#define LEDLaranja 26
 #define LEDAmarelo 14
-#define LEDVerde 26
-#define LEDAzul 25
+#define LEDVerde 12
+#define LEDAzul 13
 
-#define ButtonVermelho 17
-#define ButtonLaranja 05
+#define ButtonVermelho 21
+#define ButtonLaranja 19
 #define ButtonAmarelo 18
-#define ButtonVerde 19
-#define ButtonAzul 21
+#define ButtonVerde 05
+#define ButtonAzul 17
 
 //BLE Client
 #include "BLEDevice.h"
