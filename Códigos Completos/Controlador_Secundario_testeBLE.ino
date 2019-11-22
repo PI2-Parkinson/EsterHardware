@@ -262,15 +262,18 @@ int botao_ou_led(){
 
     do{
       cod_recebidow = receber_codigo(2);
-    }while(strcmp(cod_recebidow,"NV") != 0 && strcmp(cod_recebidow,"AL")!=0 && strcmp(cod_recebidow,"TL")!=0);
+    }while(strcmp(cod_recebidow,"NV") != 0 && strcmp(cod_recebidow,"AL")!=0 && strcmp(cod_recebidow,"TL")!=0 && strcmp(cod_recebidow,"BL")!=0);
     
     
     if(strcmp(cod_recebidow,"NV") == 0)
       retorno = 0;
     else if (strcmp(cod_recebidow, "AL")== 0)
-      retorno = 1;             
+      retorno = 1;
+    else if (strcmp(codigo_recebidow,"TL") == 0)
+      return = 2;
     else
-      retorno = 2;
+      retorno = 3;
+  
   return retorno;
   }
   
