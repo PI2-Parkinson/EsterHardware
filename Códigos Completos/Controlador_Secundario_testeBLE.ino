@@ -323,6 +323,20 @@ int acendertodos(){
   tempo = (cod_recebido[2] - '0') * 100 + (cod_recebido[3] - '0') * 10 + (cod_recebido[4] - '0') *1;
   return tempo; 
 }
+
+//acender quando conectar no app
+int acenderalgunsleds(){
+
+  int tempo=0;
+  char* cod_recebido;
+  cod_recebido = receber_codigo(5);
+  
+  while(cod_recebido[0] != 'B'){
+  cod_recebido = receber_codigo(5);
+  }
+  tempo = (cod_recebido[2] - '0') * 100 + (cod_recebido[3] - '0') * 10 + (cod_recebido[4] - '0') *1;
+  return tempo; 
+}
   
   //FUNÇÃO PARA ENVIAR CÓDIGO CHAR* PARA O CELULAR VIA BLE
 void enviar_codigo(char* vetor, int tamanho){
@@ -435,6 +449,21 @@ void loop() {
           digitalWrite(definir_LED(5), LOW);
           proximo_estado = 0;
           break;
+      case 4:
+          tempo = acenderalgunsleds();
+          digitalWrite(definir_LED(1), HIGH);
+          digitalWrite(definir_LED(3), HIGH);
+          digitalWrite(definir_LED(5), HIGH);
+          delay(tempo);
+          digitalWrite(definir_LED(1), LOW);
+          digitalWrite(definir_LED(3), LOW);
+          digitalWrite(definir_LED(5), LOW);
+          digitalWrite(definir_LED(2), HIGH);
+          digitalWrite(definir_LED(4), HIGH);
+          delay(tempo);
+          digitalWrite(definir_LED(2), LOW);
+          digitalWrite(definir_LED(4), LOW);   
+          proximo_estado = 0;                 
       default:
           break;
       }
