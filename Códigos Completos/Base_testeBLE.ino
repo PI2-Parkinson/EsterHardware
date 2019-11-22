@@ -123,18 +123,24 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 /************************************************************************
 *         FUNÇÕES DE LEITURA E PROCESSAMENTO DOS DADOS
 *************************************************************************/
-int** ler_sensor( int quantidade){
+float** ler_sensor( int quantidade){
 
-    int** leitura_sensor;
+    float** leitura_sensor;
     int i;
     //int amplitude = 3, offset = 70;
 
-    leitura_sensor = (int**)malloc(3*sizeof(int*));
+    leitura_sensor = (float**)malloc(3*sizeof(float*));
     
-    leitura_sensor[0] = (int*) malloc(quantidade*sizeof(int));
-    leitura_sensor[1] = (int*) malloc(quantidade*sizeof(int));
-    leitura_sensor[2] = (int*) malloc(quantidade*sizeof(int));
-    
+    leitura_sensor[0] = (float*) malloc(quantidade*sizeof(float));
+    leitura_sensor[1] = (float*) malloc(quantidade*sizeof(float));
+    leitura_sensor[2] = (float*) malloc(quantidade*sizeof(float));
+    for( i = 0; i < 400; i++){
+      mpu6050.update();
+      delay(25);
+    }
+    //delay(14500);
+    Serial.println("Comecar a medida");
+    //delay(500);
     for(i = 0; i < quantidade; i++){
       mpu6050.update();
       leitura_sensor[0][i] = mpu6050.getAngleX();
@@ -152,35 +158,37 @@ int** ler_sensor( int quantidade){
 
 }
 
-double* fft_emC(int* dados,int n){
+
+double* fft_emC(float* dados,int n){
 
     //double* tempo=new double[n];//armazena as 200 amostras igualmente espaçadas
 
-    long double tfr[n]; // armazena a parte real do sinal
-    long double tfi[n]; // armazena a parte imaginária do sinal
+    double tfr[n]; // armazena a parte real do sinal
+    double tfi[n]; // armazena a parte imaginária do sinal
     double* tf_abs;
 
     tf_abs = (double*)malloc((n/2+1)*sizeof(double));
 
-    for(int u=1;u<(n/2)+1;u++) {
+    for(int u=0;u<(n/2)+1;u++) {
         tfr[u]=0;
         tfi[u]=0;
         for(int x=0;x<n;x++){
-            tfr[u]+=(long double)dados[x]*cos(6.2831853*u*(double)x/(double)n);
-            tfi[u]-=(long double)dados[x]*sin(6.2831853*u* (double)x/(double)n);
+            tfr[u]+=(double)dados[x]*cos(6.2831853*u*(double)x/(double)n);
+            tfi[u]-=(double)dados[x]*sin(6.2831853*u* (double)x/(double)n);
         }
-        tfr[u]/=(long double)n;
-        tfi[u]/=(long double)n;
+        tfr[u]/=(double)n;
+        tfi[u]/=(double)n;
 
+        tf_abs[u] = sqrt(pow(tfr[u],2)+pow(tfi[u],2));
         //printf("%d |   %.5lf  %.5lf\n",u,tfr[u],tfi[u]);
     }
 
-    for(int x=0;x<(n/2+1);x++){
+    /*for(int x=0;x<(n/2+1);x++){
         tf_abs[x] = sqrt(pow(tfr[x],2)+pow(tfi[x],2));
         Serial.print(x);
         Serial.print(" | FFT : ");
         Serial.println(tf_abs[x]);
-    }
+    }*/
 
     return tf_abs;
 }
@@ -208,15 +216,24 @@ int grau_tremor(int modo, double** fft_dado, int tamanho){
     }
 
     for(int j = 0; j < 3; j++){
-      for(int i = 10; i < tamanho; i++)
+      for(int i = tamanho*0.1; i < tamanho; i++)
           if(amplitude[j]<fft_dado[j][i])
               amplitude[j] = fft_dado[j][i];
       amplitude[j] = 2*amplitude[j]; // em Graus
-      amplitude[j] = 1*sqrt(2*(1-cos(amplitude[j]/180*pi)));
+      amplitude[j] = 0.5*sqrt(2*(1-cos(amplitude[j]/180*pi))) - 0.016;
     }
 
     amplitude_total = sqrt(pow(amplitude[0],2)+pow(amplitude[1],2)+pow(amplitude[2],2));
     grau = (int)((log10(amplitude_total)-beta)/alfa);
+
+    Serial.print("Grau real: ");
+    Serial.print(((log10(amplitude_total)-beta)/alfa));
+    
+    if(grau < 0){
+      grau = 0;
+    }else if(grau > 4){
+      grau = 4;
+    }
     
     return grau;
 }
@@ -328,9 +345,9 @@ char* receber_codigo(int tamanho){
 void setup() {
   Serial.begin(115200);
   
-  Wire.begin(5, 18);
+  Wire.begin(21,22);
   mpu6050.begin();
-  //mpu6050.calcGyroOffsets(true);
+  mpu6050.calcGyroOffsets(true);
 
   //BLE Client
   Serial.println("Starting BLE Client application...");
@@ -350,9 +367,9 @@ void setup() {
 }
 
 void loop() {
-  int quant_dados = 1000, grau, modo;
-  int** dados_sensor;
-  int*dados_sensor_crr;
+  int quant_dados = 400, grau, modo;
+  float** dados_sensor;
+  float*dados_sensor_crr;
   double* fft_dados_sensor[3];
   
   //COnectar a principal
