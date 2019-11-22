@@ -809,6 +809,17 @@ int acender_todos_leds(int tempo){
   return 0;
 }
 
+int acender_alguns_leds(int tempo){
+  char enviar[] = "BLXXX";
+  enviar[2] = (int)tempo/100 + '0';
+  enviar[3] = (int)(tempo%100)/10 + '0';
+  enviar[4] = (int)(tempo%100)%10 + '0';
+  wifi_enviar_sc("BL", 2);
+  wifi_enviar_sc(enviar, 5);
+
+  return 0;
+}
+
 char* wifi_receber_sc(int tamanho ) {
   
   char* codigo_char = (char*)malloc((tamanho + 1) * sizeof(char));
@@ -961,7 +972,22 @@ void loop() {
     delay(250);
   }
   Serial.print("Conectado com o smartphone\n");
-  
+
+  delay(250);
+  acender_alguns_leds(250);
+  delay(10);
+  digitalWrite(definir_LED(1), HIGH);
+  digitalWrite(definir_LED(3), HIGH);
+  digitalWrite(definir_LED(5), HIGH);
+  delay(250);
+  digitalWrite(definir_LED(1), LOW);
+  digitalWrite(definir_LED(3), LOW);
+  digitalWrite(definir_LED(5), LOW);
+  digitalWrite(definir_LED(2), HIGH);
+  digitalWrite(definir_LED(4), HIGH);
+  delay(250);
+  digitalWrite(definir_LED(2), LOW);
+  digitalWrite(definir_LED(4), LOW);
 
   while (/*comunicacao(0, 1, sequencia_padrao) == 0*/1) {
     switch (estado_atual) {
