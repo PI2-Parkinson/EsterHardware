@@ -14,17 +14,17 @@
 
 //ENTRADAS E SAIDAS
 //LEDs e botÃµes
-#define LEDVermelho 25
-#define LEDLaranja 26
+#define LEDVermelho 13
+#define LEDLaranja 12
 #define LEDAmarelo 14
-#define LEDVerde 12
-#define LEDAzul 13
+#define LEDVerde 26
+#define LEDAzul 25
 
-#define ButtonVermelho 21
-#define ButtonLaranja 19
+#define ButtonVermelho 17
+#define ButtonLaranja 05
 #define ButtonAmarelo 18
-#define ButtonVerde 05
-#define ButtonAzul 17
+#define ButtonVerde 19
+#define ButtonAzul 21
 
 //BLE
 #define SERVICE_UUID        "c96d9bcc-f3b8-442e-b634-d546e4835f64"
@@ -963,7 +963,7 @@ void loop() {
   Serial.print("Conectado com o smartphone\n");
   
 
-  while (/*comunicacao(0, 1, sequencia_padrao) == 0*/ 1) {
+  while (/*comunicacao(0, 1, sequencia_padrao) == 0*/1) {
     switch (estado_atual) {
       case 0:
         modo = comunicacao(0, 0, sequencia_padrao);
