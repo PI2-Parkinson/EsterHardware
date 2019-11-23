@@ -938,11 +938,37 @@ void loop() {
     delay(250);
   }
   Serial.print("secundária conectada\n");
-  delay(1000);
-  for (int j = 0 ; j < 5 ; j++)
-    acender_leds(j+1, 333);
-  for (int j = 5 ; j > 0 ; j--)
-    acender_leds(j, 333);
+    
+  delay(250);
+  acender_seq_leds(100);
+  delay(10);
+  digitalWrite(definir_LED(1), HIGH);
+  delay(100);
+  digitalWrite(definir_LED(1), LOW);
+  digitalWrite(definir_LED(2), HIGH);
+  delay(100);
+  digitalWrite(definir_LED(2), LOW);
+  digitalWrite(definir_LED(3), HIGH);
+  delay(100);
+  digitalWrite(definir_LED(3), LOW);
+  digitalWrite(definir_LED(4), HIGH);
+  delay(100);
+  digitalWrite(definir_LED(4), LOW);
+  digitalWrite(definir_LED(5), HIGH);
+  delay(100);
+  digitalWrite(definir_LED(5), LOW);
+  digitalWrite(definir_LED(4), HIGH);
+  delay(100);
+  digitalWrite(definir_LED(4), LOW);
+  digitalWrite(definir_LED(3), HIGH);
+  delay(100);
+  digitalWrite(definir_LED(3), LOW);
+  digitalWrite(definir_LED(2), HIGH);
+  delay(100);
+  digitalWrite(definir_LED(2), LOW);
+  digitalWrite(definir_LED(1), HIGH);
+  delay(100);
+  digitalWrite(definir_LED(1), LOW);
   
   Serial.print("Conectar com a base\n");
   while (strcmp(wifi_receber_bs(1), "B") != 0) {
