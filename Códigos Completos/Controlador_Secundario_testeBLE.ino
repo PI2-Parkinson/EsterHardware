@@ -269,8 +269,8 @@ int botao_ou_led(){
       retorno = 0;
     else if (strcmp(cod_recebidow, "AL")== 0)
       retorno = 1;
-    else if (strcmp(codigo_recebidow,"TL") == 0)
-      return = 2;
+    else if (strcmp(cod_recebidow,"TL") == 0)
+      retorno = 2;
     else
       retorno = 3;
   
