@@ -106,6 +106,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
    * Called for each advertising BLE server.
    */
   void onResult(BLEAdvertisedDevice advertisedDevice) {
+    delay(100);
     Serial.print("BLE Advertised Device found: ");
     Serial.println(advertisedDevice.toString().c_str());
 
