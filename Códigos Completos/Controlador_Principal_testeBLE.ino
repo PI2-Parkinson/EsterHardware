@@ -409,7 +409,7 @@ void acender_leds(int LED, int tempo) {
   if (tempo == 333)
     comunicacao(6, 1, vetor_led);
   digitalWrite(definir_LED(LED), HIGH);
-  delay_ms(tempo);
+  delay_ms(tempo-10);
   digitalWrite(definir_LED(LED), LOW);
   delay_ms(10);
 }
@@ -810,7 +810,7 @@ int acender_todos_leds(int tempo){
 }
 
 int acender_alguns_leds(int tempo){
-  char enviar[6] = "BLXXX";
+  char enviar[] = "BLXXX";
   enviar[2] = (int)tempo/100 + '0';
   enviar[3] = (int)(tempo%100)/10 + '0';
   enviar[4] = (int)(tempo%100)%10 + '0';
