@@ -262,7 +262,7 @@ int botao_ou_led(){
 
     do{
       cod_recebidow = receber_codigo(2);
-    }while(strcmp(cod_recebidow,"NV") != 0 && strcmp(cod_recebidow,"AL")!=0 && strcmp(cod_recebidow,"TL")!=0 && strcmp(cod_recebidow,"BL")!=0);
+    }while(strcmp(cod_recebidow,"NV") != 0 && strcmp(cod_recebidow,"AL")!=0 && strcmp(cod_recebidow,"TL")!=0 && strcmp(cod_recebidow,"BL")!=0 && strcmp(cod_recebidow,"VL")!=0);
     
     
     if(strcmp(cod_recebidow,"NV") == 0)
@@ -271,8 +271,10 @@ int botao_ou_led(){
       retorno = 1;
     else if (strcmp(cod_recebidow,"TL") == 0)
       retorno = 2;
-    else
+    else if (strcmp(cod_recebidow,"BL") == 0)
       retorno = 3;
+    else
+      retorno = 4;
   
   return retorno;
   }
@@ -341,7 +343,21 @@ int acenderalgunsleds(){
   return tempo; 
 }
   
-  //FUNÇÃO PARA ENVIAR CÓDIGO CHAR* PARA O CELULAR VIA BLE
+//acender leds conectando sec
+int acendersec(){
+
+  int tempo=0;
+  char* cod_recebido;
+  cod_recebido = receber_codigo(5);
+  
+  while(cod_recebido[0] != 'V'){
+  cod_recebido = receber_codigo(5);
+  }
+  tempo = (cod_recebido[2] - '0') * 100 + (cod_recebido[3] - '0') * 10 + (cod_recebido[4] - '0') *1;
+  return tempo; 
+}
+
+//FUNÇÃO PARA ENVIAR CÓDIGO CHAR* PARA O CELULAR VIA BLE
 void enviar_codigo(char* vetor, int tamanho){
 
   while(!pRemoteCharacteristic->canWrite());
@@ -467,7 +483,38 @@ void loop() {
           digitalWrite(definir_LED(2), LOW);
           digitalWrite(definir_LED(4), LOW);   
           proximo_estado = 0;      
-          break;           
+          break;
+      case 5:
+          tempo = acendersec();
+          digitalWrite(definir_LED(1), HIGH);
+          delay(100);
+          digitalWrite(definir_LED(1), LOW);
+          digitalWrite(definir_LED(2), HIGH);
+          delay(100);
+          digitalWrite(definir_LED(2), LOW);
+          digitalWrite(definir_LED(3), HIGH);
+          delay(100);
+          digitalWrite(definir_LED(3), LOW);
+          digitalWrite(definir_LED(4), HIGH);
+          delay(100);
+          digitalWrite(definir_LED(4), LOW);
+          digitalWrite(definir_LED(5), HIGH);
+          delay(100);
+          digitalWrite(definir_LED(5), LOW);
+          digitalWrite(definir_LED(4), HIGH);
+          delay(100);
+          digitalWrite(definir_LED(4), LOW);
+          digitalWrite(definir_LED(3), HIGH);
+          delay(100);
+          digitalWrite(definir_LED(3), LOW);
+          digitalWrite(definir_LED(2), HIGH);
+          delay(100);
+          digitalWrite(definir_LED(2), LOW);
+          digitalWrite(definir_LED(1), HIGH);
+          delay(100);
+          digitalWrite(definir_LED(1), LOW);
+          proximo_estado = 0;
+          break;
       default:
           break;
       }
