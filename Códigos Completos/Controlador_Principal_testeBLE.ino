@@ -820,6 +820,18 @@ int acender_alguns_leds(int tempo){
   return 0;
 }
 
+
+int acender_alguns_leds(int tempo){
+  char enviar[] = "VLXXX";
+  enviar[2] = (int)tempo/100 + '0';
+  enviar[3] = (int)(tempo%100)/10 + '0';
+  enviar[4] = (int)(tempo%100)%10 + '0';
+  wifi_enviar_sc("VL", 2);
+  wifi_enviar_sc(enviar, 5);
+
+  return 0;
+}
+
 char* wifi_receber_sc(int tamanho ) {
   
   char* codigo_char = (char*)malloc((tamanho + 1) * sizeof(char));
