@@ -220,12 +220,19 @@ int grau_tremor(int modo, double** fft_dado, int tamanho){
           if(amplitude[j]<fft_dado[j][i])
               amplitude[j] = fft_dado[j][i];
       amplitude[j] = 2*amplitude[j]; // em Graus
-      amplitude[j] = 0.5*sqrt(2*(1-cos(amplitude[j]/180*pi))) - 0.016;
+      amplitude[j] = 0.5*sqrt(2*(1-cos(amplitude[j]/180*pi)));
+      Serial.print("amplitude real * : ");
+      Serial.println(amplitude[j]);
     }
 
     amplitude_total = sqrt(pow(amplitude[0],2)+pow(amplitude[1],2)+pow(amplitude[2],2));
+    amplitude_total = amplitude_total - 0.009;
+    if(amplitude_total < 0)
+      amplitude_total = 0.0001;
     grau = (int)((log10(amplitude_total)-beta)/alfa);
 
+    Serial.print("amplitude real : ");
+    Serial.println(amplitude_total);
     Serial.print("Grau real: ");
     Serial.print(((log10(amplitude_total)-beta)/alfa));
     
