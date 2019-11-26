@@ -21,7 +21,7 @@
 #define LEDAzul 25
 
 #define ButtonVermelho 21
-#define ButtonLaranja 19f
+#define ButtonLaranja 19
 #define ButtonAmarelo 18
 #define ButtonVerde 05
 #define ButtonAzul 17
