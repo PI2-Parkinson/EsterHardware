@@ -963,7 +963,7 @@ void loop() {
   Serial.print("Conectado com o smartphone\n");
   
 
-  while (comunicacao(0, 1, sequencia_padrao) == 0) {
+  while (1) {
     switch (estado_atual) {
       case 0:
         modo = comunicacao(0, 0, sequencia_padrao);
