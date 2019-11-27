@@ -364,7 +364,7 @@ int ler_botoes(int nivel, int* sequencia) {
   //unsigned long tempo_atual = millis();
 
   // LER CADA BOTAO E VERIFICA SE ERROU
-  tempo_inicial = tempo_atual;
+  //tempo_inicial = tempo_atual;
   while (cont < nivel ) {
     //FALAR QUE É PARA LER BOTOES DA SECUNDARIA
     if(apertou == 1)
