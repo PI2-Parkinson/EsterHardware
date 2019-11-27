@@ -237,12 +237,12 @@ void exercicio1() {
 
   //DEMONSTRAÃ‡ÃƒO
   //comunicacao(1, 5, sequencia_padrao);
-  i = 0;
+  /*i = 0;
   enviar_sequencia(5, sequencia_padrao);
   for (i = 0; i < 5; i++) {
     acender_leds(i + 1, 333);
   }
-  finalizou_sequencia();
+  finalizou_sequencia();*/
 
 
   //RECEBE NÃ�VEL
