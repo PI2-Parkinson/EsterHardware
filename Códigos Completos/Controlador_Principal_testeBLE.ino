@@ -160,6 +160,7 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados) {
         case 5:
           i = 0;
           while (vetor_de_dados[i] != 0) {
+            Serial.println(vetor_de_dados[i]);
             i++;
           }
           //enviar_sequencia(i, vetor_de_dados);
