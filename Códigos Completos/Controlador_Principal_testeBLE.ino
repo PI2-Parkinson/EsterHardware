@@ -162,10 +162,10 @@ int comunicacao(int modo_de_op, int escolha, int* vetor_de_dados) {
           while (vetor_de_dados[i] != 0) {
             i++;
           }
-          enviar_sequencia(i, vetor_de_dados);
+          //enviar_sequencia(i, vetor_de_dados);
           for (int j = 0 ; j < i ; j++)
             acender_leds(vetor_de_dados[j], 333);
-          retorno = finalizou_sequencia();
+          //retorno = finalizou_sequencia();
           break;
         default:
           Serial.print("Comando invalido!\n");
