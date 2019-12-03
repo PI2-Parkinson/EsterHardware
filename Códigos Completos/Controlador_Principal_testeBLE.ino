@@ -237,18 +237,9 @@ void exercicio1() {
   int sequencia[32] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   int deseja_continuar = 1;
 
-  //DEMONSTRAÃ‡ÃƒO
-  //comunicacao(1, 5, sequencia_padrao);
-  /*i = 0;
-  enviar_sequencia(5, sequencia_padrao);
-  for (i = 0; i < 5; i++) {
-    acender_leds(i + 1, 333);
-  }
-  finalizou_sequencia();*/
-
-
   //RECEBE NÃ�VEL
-  nivel = comunicacao(1, 3, sequencia_padrao);
+  //nivel = comunicacao(1, 3, sequencia_padrao);
+  nivel = 1;
 
   for (count = nivel; count < 32 && deseja_continuar == 1; count++)
   {
@@ -267,15 +258,14 @@ void exercicio1() {
     if (ler_botoes(count, sequencia) == 1) {
 
       //ERROU, DESEJA CONTINUAR?
-      deseja_continuar = comunicacao(1, 2, sequencia_padrao);
-      count = 0;
-      nivel = 1;
+      deseja_continuar = /*comunicacao(1, 2, sequencia_padrao)*/ 0;
+      count--;
       for (i = 0; i < 32; i++)
         sequencia[i] = 0;
     } else {
 
       //ACERTOU, DESEJA CONTINUAR?
-      deseja_continuar = 1 - comunicacao(1, 1, sequencia_padrao);
+      deseja_continuar = 1 /*- comunicacao(1, 1, sequencia_padrao)*/;
     }
   }
 
@@ -296,13 +286,8 @@ void exercicio2() {
   //DEMONSTRAÃ‡ÃƒO
   comunicacao(2, 5, sequencia_padrao);
 
-  //ACENDE LEDS DA SEQUENCIA
-  /*for (i = 0; i < 5; i++){
-      acender_leds(i+1,333);
-    }*/
-
   //RECEBE NÃ�VEL
-  nivel = comunicacao(2, 3, sequencia_padrao);
+  //nivel = comunicacao(2, 3, sequencia_padrao);
 
   for (count = nivel; count < 32 && deseja_continuar == 1; count++)
   {
@@ -329,15 +314,14 @@ void exercicio2() {
     if (ler_botoes(count, sequencia) == 1) {
 
       //ERROU, DESEJA CONTINUAR?
-      deseja_continuar = comunicacao(2, 2, sequencia_padrao);
-      count = 0;
-      nivel = 1;
+      deseja_continuar = 0;
+      count--;
       for (i = 0; i < 32; i++)
         sequencia[i] = 0;
     } else {
 
       //ACERTOU, DESEJA CONTINUAR?
-      deseja_continuar = 1 - comunicacao(2, 1, sequencia_padrao);
+      deseja_continuar = 1;
     }
   }
 
@@ -950,8 +934,8 @@ void loop() {
   Serial.println("Conectando aos dispositivos via BLE");
    
   int cont_conexoes = 0;
-  wihle(cont_conexoes < 3){
-      if(strcmp(codigo_BLE, "C"){
+  while(cont_conexoes < 3){
+      if(strcmp(codigo_BLE, "C")){
           
           Serial.print("Conectado com o smartphone\n");
 
@@ -974,7 +958,7 @@ void loop() {
           strcpy(codigo_BLE,"0000");
           cont_conexoes++;
 
-      }else if(strcmp(codigo_BLE_bs, "B"){
+      }else if(strcmp(codigo_BLE_bs, "B")){
           wifi_enviar_bs("B",1);
           Serial.print("base conectada\n");
 
@@ -1037,7 +1021,7 @@ void loop() {
       }
   }
 
-  while (/*comunicacao(0, 1, sequencia_padrao) == 0*/1) {
+  while (1) {
     switch (estado_atual) {
       case 0:
         modo = comunicacao(0, 0, sequencia_padrao);
