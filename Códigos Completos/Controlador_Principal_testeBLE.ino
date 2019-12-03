@@ -935,8 +935,9 @@ void loop() {
    
   int cont_conexoes = 0;
   while(cont_conexoes < 3){
-      if(strcmp(codigo_BLE, "C")){
-          
+      if(strcmp(codigo_BLE, "C") == 0){
+        
+          strcpy(codigo_BLE,"0000");
           Serial.print("Conectado com o smartphone\n");
 
           delay(250);
@@ -955,10 +956,11 @@ void loop() {
           digitalWrite(definir_LED(2), LOW);
           digitalWrite(definir_LED(4), LOW);
           
-          strcpy(codigo_BLE,"0000");
           cont_conexoes++;
 
-      }else if(strcmp(codigo_BLE_bs, "B")){
+      }else if(strcmp(codigo_BLE_bs, "B") == 0){
+        
+          strcpy(codigo_BLE_bs,"0000");
           wifi_enviar_bs("B",1);
           Serial.print("base conectada\n");
 
@@ -977,16 +979,16 @@ void loop() {
           digitalWrite(definir_LED(4), LOW);
           digitalWrite(definir_LED(5), LOW);
           
-          strcpy(codigo_BLE_bs,"0000");
           cont_conexoes++;
 
-      }else if(strcmp(codigo_BLE, "S")){
+      }else if(strcmp(codigo_BLE_sc, "S") == 0){
+        
+          strcpy(codigo_BLE_sc,"0000");
           wifi_enviar_sc("S",1);
-
           Serial.print("secundária conectada\n");
 
           delay(250);
-          acender_seq_leds(200);
+          acender_seq_leds(250);
           delay(10);
           digitalWrite(definir_LED(1), HIGH);
           delay(250);
@@ -1016,7 +1018,6 @@ void loop() {
           delay(250);
           digitalWrite(definir_LED(1), LOW);
           
-          strcpy(codigo_BLE_sc,"0000");
           cont_conexoes++;
       }
   }
