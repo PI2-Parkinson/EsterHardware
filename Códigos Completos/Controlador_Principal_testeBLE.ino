@@ -81,8 +81,9 @@ class MyServerCallbacks: public BLEServerCallbacks {
       deviceConnected = true;
       //BLEDevice::startAdvertising();
       delay(1000);
+      BLEDevice::startAdvertising();
       pServer->startAdvertising();
-      //Serial.println("entrou nessa condição: onConnect");
+      Serial.println("entrou nessa condição: onConnect");
     };
 
     void onDisconnect(BLEServer* pServer) {
@@ -947,92 +948,94 @@ void loop() {
   int sequencia_inv[6] = {5, 4, 3, 2, 1, 0};
 
   Serial.println("Conectando aos dispositivos via BLE");
-  
-  Serial.print("Conectar com o secundário\n");
-  while (strcmp(wifi_receber_sc(1), "S") != 0) {
-    wifi_enviar_sc("S",1);
-    delay(250);
-  }
-  wifi_enviar_sc("S",1);
-  
-  Serial.print("secundária conectada\n");
-    
-  delay(250);
-  acender_seq_leds(200);
-  delay(10);
-  digitalWrite(definir_LED(1), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(1), LOW);
-  digitalWrite(definir_LED(2), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(2), LOW);
-  digitalWrite(definir_LED(3), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(3), LOW);
-  digitalWrite(definir_LED(4), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(4), LOW);
-  digitalWrite(definir_LED(5), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(5), LOW);
-  digitalWrite(definir_LED(4), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(4), LOW);
-  digitalWrite(definir_LED(3), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(3), LOW);
-  digitalWrite(definir_LED(2), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(2), LOW);
-  digitalWrite(definir_LED(1), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(1), LOW);
-  
-  Serial.print("Conectar com a base\n");
-  while (strcmp(wifi_receber_bs(1), "B") != 0) {
-    wifi_enviar_bs("B",1);
-    delay(250);
-  }
-  wifi_enviar_bs("B",1);
-  Serial.print("base conectada\n");
-  
-  delay(250);
-  acender_todos_leds(250);
-  delay(10);
-  digitalWrite(definir_LED(1), HIGH);
-  digitalWrite(definir_LED(2), HIGH);
-  digitalWrite(definir_LED(3), HIGH);
-  digitalWrite(definir_LED(4), HIGH);
-  digitalWrite(definir_LED(5), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(1), LOW);
-  digitalWrite(definir_LED(2), LOW);
-  digitalWrite(definir_LED(3), LOW);
-  digitalWrite(definir_LED(4), LOW);
-  digitalWrite(definir_LED(5), LOW);
-  
-  Serial.print("Conectar com o smartphone\n");
-  while (strcmp(receber_codigo(1), "C") != 0) {
-    enviar_codigo("C");
-    delay(250);
-  }
-  Serial.print("Conectado com o smartphone\n");
+   
+  int cont_conexoes = 0;
+  wihle(cont_conexoes < 3){
+      if(strcmp(codigo_BLE, "C"){
+          
+          Serial.print("Conectado com o smartphone\n");
 
-  delay(250);
-  acender_alguns_leds(250);
-  delay(10);
-  digitalWrite(definir_LED(1), HIGH);
-  digitalWrite(definir_LED(3), HIGH);
-  digitalWrite(definir_LED(5), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(1), LOW);
-  digitalWrite(definir_LED(3), LOW);
-  digitalWrite(definir_LED(5), LOW);
-  digitalWrite(definir_LED(2), HIGH);
-  digitalWrite(definir_LED(4), HIGH);
-  delay(250);
-  digitalWrite(definir_LED(2), LOW);
-  digitalWrite(definir_LED(4), LOW);
+          delay(250);
+          acender_alguns_leds(250);
+          delay(10);
+          digitalWrite(definir_LED(1), HIGH);
+          digitalWrite(definir_LED(3), HIGH);
+          digitalWrite(definir_LED(5), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(1), LOW);
+          digitalWrite(definir_LED(3), LOW);
+          digitalWrite(definir_LED(5), LOW);
+          digitalWrite(definir_LED(2), HIGH);
+          digitalWrite(definir_LED(4), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(2), LOW);
+          digitalWrite(definir_LED(4), LOW);
+          
+          strcpy(codigo_BLE,"0000");
+          cont_conexoes++;
+
+      }else if(strcmp(codigo_BLE_bs, "B"){
+          wifi_enviar_bs("B",1);
+          Serial.print("base conectada\n");
+
+          delay(250);
+          acender_todos_leds(250);
+          delay(10);
+          digitalWrite(definir_LED(1), HIGH);
+          digitalWrite(definir_LED(2), HIGH);
+          digitalWrite(definir_LED(3), HIGH);
+          digitalWrite(definir_LED(4), HIGH);
+          digitalWrite(definir_LED(5), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(1), LOW);
+          digitalWrite(definir_LED(2), LOW);
+          digitalWrite(definir_LED(3), LOW);
+          digitalWrite(definir_LED(4), LOW);
+          digitalWrite(definir_LED(5), LOW);
+          
+          strcpy(codigo_BLE_bs,"0000");
+          cont_conexoes++;
+
+      }else if(strcmp(codigo_BLE, "S")){
+          wifi_enviar_sc("S",1);
+
+          Serial.print("secundária conectada\n");
+
+          delay(250);
+          acender_seq_leds(200);
+          delay(10);
+          digitalWrite(definir_LED(1), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(1), LOW);
+          digitalWrite(definir_LED(2), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(2), LOW);
+          digitalWrite(definir_LED(3), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(3), LOW);
+          digitalWrite(definir_LED(4), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(4), LOW);
+          digitalWrite(definir_LED(5), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(5), LOW);
+          digitalWrite(definir_LED(4), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(4), LOW);
+          digitalWrite(definir_LED(3), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(3), LOW);
+          digitalWrite(definir_LED(2), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(2), LOW);
+          digitalWrite(definir_LED(1), HIGH);
+          delay(250);
+          digitalWrite(definir_LED(1), LOW);
+          
+          strcpy(codigo_BLE_sc,"0000");
+          cont_conexoes++;
+      }
+  }
 
   while (/*comunicacao(0, 1, sequencia_padrao) == 0*/1) {
     switch (estado_atual) {
