@@ -361,7 +361,7 @@ void setup() {
   Serial.println("Starting BLE Client application...");
   BLEDevice::init("Base ESTER");
 
-  delay(3000);
+  delay(1000);
     
   BLEScan* pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
@@ -403,6 +403,6 @@ void loop() {
 
           
       }
-      delay(500);
+      delay(100);
   }
 }
