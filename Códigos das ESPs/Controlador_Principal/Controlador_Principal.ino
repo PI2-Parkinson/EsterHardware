@@ -570,10 +570,10 @@ int enviar_sequencia(int quantidade, int* vetor_de_dados) {
     sequencia[i + 2] = vetor_de_dados[i] + '0';
   sequencia[quantidade + 2] = 'F';
   sequencia[quantidade + 3] = '\0';
-  do {
-    enviar_codigo(sequencia);
-    codigo_recebido = receber_codigo(2);
-  } while (strcmp(codigo_recebido, "SR") != 0);
+  //do {
+  enviar_codigo(sequencia);
+    //codigo_recebido = receber_codigo(2);
+  //} while (strcmp(codigo_recebido, "SR") != 0);
 
 
   return 0;
