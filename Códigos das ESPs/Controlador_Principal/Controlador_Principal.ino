@@ -274,6 +274,7 @@ void exercicio1() {
   comunicacao(1, 4, &nivel);
 
 }
+
 void exercicio2() {
   //INICIO
   int semente_rand = time(NULL);
@@ -288,7 +289,8 @@ void exercicio2() {
 
   //RECEBE NÃ�VEL
   //nivel = comunicacao(2, 3, sequencia_padrao);
-
+  nivel = 1;
+  
   for (count = nivel; count < 32 && deseja_continuar == 1; count++)
   {
 
@@ -314,14 +316,14 @@ void exercicio2() {
     if (ler_botoes(count, sequencia) == 1) {
 
       //ERROU, DESEJA CONTINUAR?
-      deseja_continuar = 0;
+      deseja_continuar = /*comunicacao(1, 2, sequencia_padrao)*/ 0;
       count--;
       for (i = 0; i < 32; i++)
         sequencia[i] = 0;
     } else {
 
       //ACERTOU, DESEJA CONTINUAR?
-      deseja_continuar = 1;
+      deseja_continuar = 1 /*- comunicacao(1, 1, sequencia_padrao)*/;
     }
   }
 
